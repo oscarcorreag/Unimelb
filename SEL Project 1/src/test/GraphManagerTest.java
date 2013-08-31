@@ -1,7 +1,8 @@
 package test;
 
-import static org.junit.Assert.assertNotNull;
-import managers.AdjList;
+import java.util.HashSet;
+
+import managers.GraphManager;
 
 import org.junit.Test;
 
@@ -17,9 +18,13 @@ public class GraphManagerTest {
 	
 	@Test
 	public void testCalcCN() {
-		AdjList g = new AdjList();
-		g.readTrainData();
-        g.calculateMeasures();		
+		GraphManager g = new GraphManager();
+		HashSet<Integer> vertices_set = g.readTestVertices();
+		
+		g.readTrainGraphFromFile(vertices_set); 
+		g._graph.calculateMeasures(18, 19);
+		g.writeTrainFile(vertices_set);
+		g.writeTestFile();
 	}
 	
 }
