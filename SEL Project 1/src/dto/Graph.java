@@ -117,4 +117,9 @@ public class Graph {
 		else
 			return null;
 	}
+
+	public Map<Integer, HashSet<Integer>> getVertexAndFollowees() {
+		return _vertexAndFollowees;
+	}
+
 }

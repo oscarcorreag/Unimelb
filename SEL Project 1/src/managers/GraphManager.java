@@ -10,6 +10,9 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import dto.Graph;
@@ -151,17 +154,31 @@ public class GraphManager {
 			while ((strLine = br.readLine()) != null) {
 				String[] ids = strLine.split("\t");
 				Integer srcId_i = Integer.valueOf(ids[0]);
-				HashSet<Integer> n = new HashSet<Integer>();
+				HashSet<Integer> followees = new HashSet<Integer>();
 
 				for (int i = 1; i < ids.length; i++) {
 					Integer desId_i = Integer.valueOf(ids[i]);
-					n.add(desId_i);
-					if (test_vertices.contains(desId_i))
-						_graph.addVertexAndFollower(desId_i, srcId_i);
+					followees.add(desId_i);
+					// if (test_vertices.contains(desId_i))
+					// _graph.addVertexAndFollower(desId_i, srcId_i);
 				}
-				_graph.addVertexAndFollowees(srcId_i, n);
+				_graph.addVertexAndFollowees(srcId_i, followees);
+				// _graph.addVertexAndFollowees(srcId_i, null);
 			}
 			in.close();
+
+			Map<Integer, HashSet<Integer>> vertexAndFollowees = _graph.getVertexAndFollowees();
+
+			Iterator<Entry<Integer, HashSet<Integer>>> it = vertexAndFollowees.entrySet().iterator();
+			while (it.hasNext()) {
+				Map.Entry<Integer, HashSet<Integer>> vAndF = (Map.Entry<Integer, HashSet<Integer>>) it.next();
+				Integer follower = vAndF.getKey();
+				HashSet<Integer> followees = vAndF.getValue();
+				for (Integer followee : followees)
+					if (vertexAndFollowees.containsKey(followee) || test_vertices.contains(followee))
+						_graph.addVertexAndFollower(followee, follower);
+			}
+
 		} catch (Exception e) {
 			System.err.println("Error: " + e.getMessage());
 			e.printStackTrace();
