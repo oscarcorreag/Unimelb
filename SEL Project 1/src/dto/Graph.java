@@ -23,9 +23,9 @@ public class Graph {
 		if (_vertexAndFollowers.containsKey(dest)) {
 			_vertexAndFollowers.get(dest).add(src);
 		} else {
-			HashSet<Integer> followees = new HashSet<Integer>();
-			followees.add(src);
-			_vertexAndFollowers.put(dest, followees);
+			HashSet<Integer> followers = new HashSet<Integer>();
+			followers.add(src);
+			_vertexAndFollowers.put(dest, followers);
 		}
 	}
 
