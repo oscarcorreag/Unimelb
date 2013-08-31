@@ -15,11 +15,11 @@ public class Graph {
 		_vertexAndFollowers = new HashMap<Integer, HashSet<Integer>>();
 	}
 
-	public void add(Integer v, HashSet<Integer> n) {
+	public void addVertexAndFollowees(Integer v, HashSet<Integer> n) {
 		_vertexAndFollowees.put(v, n);
 	}
 
-	public void addFollowee(Integer dest, Integer src) {
+	public void addVertexAndFollower(Integer dest, Integer src) {
 		if (_vertexAndFollowers.containsKey(dest)) {
 			_vertexAndFollowers.get(dest).add(src);
 		} else {

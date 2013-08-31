@@ -157,9 +157,9 @@ public class GraphManager {
 					Integer desId_i = Integer.valueOf(ids[i]);
 					n.add(desId_i);
 					if (test_vertices.contains(desId_i))
-						_graph.addFollowee(desId_i, srcId_i);
+						_graph.addVertexAndFollower(desId_i, srcId_i);
 				}
-				_graph.add(srcId_i, n);
+				_graph.addVertexAndFollowees(srcId_i, n);
 			}
 			in.close();
 		} catch (Exception e) {
