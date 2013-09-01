@@ -20,6 +20,8 @@ public class Measures {
 	private double jaccardFolloweesFollowers;
 	private double jaccardFollowersFollowees;
 
+	private double pageRank = 0.0;
+
 	private final double MIN_CUT_OFF = 0.0000001;
 
 	public Measures() {
@@ -52,12 +54,12 @@ public class Measures {
 	}
 
 	public double getJaccardFollowees() {
-//		return jaccardFollowees > MIN_CUT_OFF ? jaccardFollowees : 0.0;
+		// return jaccardFollowees > MIN_CUT_OFF ? jaccardFollowees : 0.0;
 		return jaccardFollowees;
 	}
 
 	public double getCosineFollowees() {
-//		return cosineFollowees > MIN_CUT_OFF ? cosineFollowees : 0.0;
+		// return cosineFollowees > MIN_CUT_OFF ? cosineFollowees : 0.0;
 		return cosineFollowees;
 	}
 
@@ -66,12 +68,12 @@ public class Measures {
 	}
 
 	public double getJaccardFollowers() {
-//		return jaccardFollowers > MIN_CUT_OFF ? jaccardFollowers : 0.0;
+		// return jaccardFollowers > MIN_CUT_OFF ? jaccardFollowers : 0.0;
 		return jaccardFollowers;
 	}
 
 	public double getCosineFollowers() {
-//		return cosineFollowers > MIN_CUT_OFF ? cosineFollowers : 0.0;
+		// return cosineFollowers > MIN_CUT_OFF ? cosineFollowers : 0.0;
 		return cosineFollowers;
 	}
 
@@ -92,12 +94,14 @@ public class Measures {
 	}
 
 	public double getJaccardFolloweesFollowers() {
-//		return jaccardFolloweesFollowers > MIN_CUT_OFF ? jaccardFolloweesFollowers : 0.0;
+		// return jaccardFolloweesFollowers > MIN_CUT_OFF ?
+		// jaccardFolloweesFollowers : 0.0;
 		return jaccardFolloweesFollowers;
 	}
 
 	public double getJaccardFollowersFollowees() {
-//		return jaccardFollowersFollowees > MIN_CUT_OFF ? jaccardFollowersFollowees : 0.0;
+		// return jaccardFollowersFollowees > MIN_CUT_OFF ?
+		// jaccardFollowersFollowees : 0.0;
 		return jaccardFollowersFollowees;
 	}
 
@@ -154,8 +158,25 @@ public class Measures {
 	}
 
 	public String toString() {
-		return getMutual() + "," + (int) getIntersectionFollowees() + "," + getJaccardFollowees() + "," + getCosineFollowees() + ","
-				+ getIntersectionFollowers() + "," + getJaccardFollowers() + "," + getCosineFollowers() + "," + getNumFolloweesSrc() + ","
-				+ getNumFolloweesDes() + "," + getNumFollowersSrc() + "," + getNumFollowersDes() + "\n";
+		// return getPageRank() + "," + getMutual() + "," + (int)
+		// getIntersectionFollowees() + "," + getJaccardFollowees() + "," +
+		// getCosineFollowees()
+		// + "," + (int) getIntersectionFollowers() + "," +
+		// getJaccardFollowers() + "," + getCosineFollowers() + "," +
+		// getNumFolloweesSrc()
+		// + "," + getNumFolloweesDes() + "," + getNumFollowersSrc() + "," +
+		// getNumFollowersDes();
+
+		return getPageRank() + "," + getMutual() + "," + (int) getIntersectionFollowees() + "," + getJaccardFollowees() + "," + getCosineFollowees() + ","
+				+ (int) getIntersectionFollowers() + "," + getJaccardFollowers() + "," + getCosineFollowers() + "," + getNumFolloweesSrc() + ","
+				+ getNumFolloweesDes() + "," + getNumFollowersSrc() + "," + getNumFollowersDes();
+	}
+
+	public double getPageRank() {
+		return pageRank;
+	}
+
+	public void setPageRank(double pageRank) {
+		this.pageRank = pageRank;
 	}
 }

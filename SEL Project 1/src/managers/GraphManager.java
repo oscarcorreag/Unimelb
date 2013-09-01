@@ -9,10 +9,14 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Random;
 import java.util.Set;
 
 import dto.Graph;
@@ -22,26 +26,85 @@ public class GraphManager {
 
 	public Graph _graph;
 
-	// final String train_1 = "train_toy.txt";
-	// final String test_1 = "test_toy.txt";
-
-	final String train_1 = "train_final.txt";
-	final String test_1 = "test_final.txt";
-
-	final String train_2 = "train_set.txt";
-	final String test_2 = "test_set.txt";
+	final int MAX = 4;
 
 	public GraphManager() {
 		_graph = new Graph();
 	}
 
-	public HashSet<Integer> readTestVertices() {
-		HashSet<Integer> vertices = new HashSet<Integer>();
+	/*
+	 * 
+	 */
+	public void readTrainGraphFromFile(HashSet<Integer> test_vertices, String in_file) {
+
 		try {
-			// FileInputStream fstream = new FileInputStream("test_final.txt");
-			FileInputStream fstream = new FileInputStream(test_1);
+			// Read the input file which
+			FileInputStream fstream = new FileInputStream(in_file);
 			DataInputStream in = new DataInputStream(fstream);
 			BufferedReader br = new BufferedReader(new InputStreamReader(in));
+
+			String strLine;
+
+			while ((strLine = br.readLine()) != null) {
+				String[] ids = strLine.split("\t");
+				Integer srcId_i = Integer.valueOf(ids[0]);
+				HashSet<Integer> followees = new HashSet<Integer>();
+
+				for (int i = 1; i < ids.length; i++) {
+					Integer desId_i = Integer.valueOf(ids[i]);
+					followees.add(desId_i);
+				}
+				_graph.addVertexAndFollowees(srcId_i, followees);
+			}
+			in.close();
+
+			Map<Integer, HashSet<Integer>> vertexAndFollowees = _graph.getVertexAndFollowees();
+
+			Random random = new Random();
+			List<Integer> keys = new ArrayList<Integer>(vertexAndFollowees.keySet());
+			Iterator<Entry<Integer, HashSet<Integer>>> it = vertexAndFollowees.entrySet().iterator();
+
+			while (it.hasNext()) {
+
+				Map.Entry<Integer, HashSet<Integer>> vAndF = (Map.Entry<Integer, HashSet<Integer>>) it.next();
+
+				Integer follower = vAndF.getKey();
+				HashSet<Integer> followees = vAndF.getValue();
+
+				HashSet<Integer> notFollowees = new HashSet<Integer>();
+				for (int i = 0; i < MAX; i++) {
+					Integer randomKey = keys.get(random.nextInt(keys.size()));
+
+					if (follower != randomKey && !followees.contains(randomKey)) {
+						notFollowees.add(randomKey);
+					}
+				}
+				_graph.addVertexAndNotFollowees(follower, notFollowees);
+
+				for (Integer followee : followees)
+					if (vertexAndFollowees.containsKey(followee) || test_vertices.contains(followee))
+						_graph.addVertexAndFollower(followee, follower);
+			}
+
+		} catch (Exception e) {
+			System.err.println("Error: " + e.getMessage());
+			e.printStackTrace();
+		}
+	}
+
+	/*
+	 * 
+	 */
+	public HashSet<Integer> readTestVertices(String in_file) {
+
+		HashSet<Integer> vertices = new HashSet<Integer>();
+
+		try {
+
+			FileInputStream fstream = new FileInputStream(in_file);
+			DataInputStream in = new DataInputStream(fstream);
+			BufferedReader br = new BufferedReader(new InputStreamReader(in));
+
 			String strLine;
 
 			while ((strLine = br.readLine()) != null) {
@@ -62,9 +125,13 @@ public class GraphManager {
 		return vertices;
 	}
 
-	public void writeTrainFile(HashSet<Integer> vertices_set) {
+	/*
+	 * 
+	 */
+	public void writeTrainFile(HashSet<Integer> vertices_set, String out_file) {
 
-		File trainFile = new File(train_2);
+		File trainFile = new File(out_file);
+
 		if (!trainFile.exists()) {
 			try {
 				trainFile.createNewFile();
@@ -73,24 +140,76 @@ public class GraphManager {
 				e.printStackTrace();
 			}
 		}
+
 		PrintWriter writer = null;
+
 		try {
+
 			writer = new PrintWriter(trainFile, "UTF-8");
+
 			Set<Integer> dest_ids;
-			// int i = 0;
+
+			Map<Integer, HashSet<Integer>> vertexAndNotFollowees = _graph.getVertexAndNotFollowees();
+
 			for (Integer src_id : vertices_set) {
+//				long t0 = System.currentTimeMillis();
+ 
+				HashMap<Integer, Double> init_probs = new HashMap<Integer, Double>();
+				init_probs.put(src_id, 1.0);
+
+				HashMap<Integer, Double> pr_probs = _graph.calcPageRank(src_id, init_probs, 2);
+//				System.out.println(System.currentTimeMillis() - t0);
+
 				dest_ids = _graph.getFollowees(src_id);
-				// i = 0;
-				Measures m;
+
+				int i = 0;
+
 				if (dest_ids != null) {
+
 					for (Integer dest_id : dest_ids) {
-						if (_graph.getFollowees(dest_id) == null)
+
+						if (i > MAX)
 							break;
-						m = _graph.calculateMeasures(src_id, dest_id);
-						writer.write(m.toString());
+
+						if (_graph.getFollowees(dest_id) == null)
+							continue;
+
+						Measures m = _graph.calculateMeasures(src_id, dest_id, pr_probs);
+						// Measures m = _graph.calculateMeasures(src_id,
+						// dest_id);
+						writer.write(m.toString() + ",1\n");
+						i++;
 					}
 				}
+
+				Set<Integer> dest_ids_neg = vertexAndNotFollowees.get(src_id);
+
+				if (dest_ids_neg != null) {
+					for (Integer dest_id_neg : dest_ids_neg) {
+						Measures m = _graph.calculateMeasures(src_id, dest_id_neg, pr_probs); // pr_map_src
+						writer.write(m.toString() + ",-1\n");
+					}
+				}
+
 			}
+
+			// Iterator<Entry<Integer, HashSet<Integer>>> it =
+			// vertexAndNotFollowees.entrySet().iterator();
+			//
+			// while (it.hasNext()) {
+			//
+			// Map.Entry<Integer, HashSet<Integer>> vAndF = (Map.Entry<Integer,
+			// HashSet<Integer>>) it.next();
+			//
+			// Integer notFollower = vAndF.getKey();
+			// HashSet<Integer> notFollowees = vAndF.getValue();
+			//
+			// for (Integer notFollowee : notFollowees){
+			// Measures m = _graph.calculateMeasures(notFollower, notFollowee);
+			// writer.write(m.toString() + ",-1\n");
+			// }
+			// }
+
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -102,9 +221,9 @@ public class GraphManager {
 		}
 	}
 
-	public void writeTestFile() {
+	public void writeTestFile(String in_file, String out_file) {
 
-		File testFile = new File(test_2);
+		File testFile = new File(out_file);
 		if (!testFile.exists()) {
 			try {
 				testFile.createNewFile();
@@ -117,7 +236,7 @@ public class GraphManager {
 		try {
 			writer = new PrintWriter(testFile, "UTF-8");
 
-			FileInputStream fstream = new FileInputStream(test_1);
+			FileInputStream fstream = new FileInputStream(in_file);
 			DataInputStream in = new DataInputStream(fstream);
 			BufferedReader br = new BufferedReader(new InputStreamReader(in));
 
@@ -131,8 +250,14 @@ public class GraphManager {
 				Integer srcId_i = Integer.valueOf(ids[0]);
 				Integer destId_i = Integer.valueOf(ids[1]);
 
-				m = _graph.calculateMeasures(srcId_i, destId_i);
-				writer.write(m.toString());
+				HashMap<Integer, Double> init_probs = new HashMap<Integer, Double>();
+				init_probs.put(srcId_i, 1.0);
+
+				HashMap<Integer, Double> pr_probs = _graph.calcPageRank(srcId_i, init_probs, 2);
+
+				// m = _graph.calculateMeasures(srcId_i, destId_i);
+				m = _graph.calculateMeasures(srcId_i, destId_i, pr_probs);
+				writer.write(m.toString() + ",?\n");
 			}
 			in.close();
 			writer.close();
@@ -141,47 +266,4 @@ public class GraphManager {
 		}
 	}
 
-	public void readTrainGraphFromFile(HashSet<Integer> test_vertices) {
-
-		try {
-			// FileInputStream fstream = new FileInputStream("train_final.txt");
-			FileInputStream fstream = new FileInputStream(train_1);
-			DataInputStream in = new DataInputStream(fstream);
-			BufferedReader br = new BufferedReader(new InputStreamReader(in));
-
-			String strLine;
-
-			while ((strLine = br.readLine()) != null) {
-				String[] ids = strLine.split("\t");
-				Integer srcId_i = Integer.valueOf(ids[0]);
-				HashSet<Integer> followees = new HashSet<Integer>();
-
-				for (int i = 1; i < ids.length; i++) {
-					Integer desId_i = Integer.valueOf(ids[i]);
-					followees.add(desId_i);
-					// if (test_vertices.contains(desId_i))
-					// _graph.addVertexAndFollower(desId_i, srcId_i);
-				}
-				_graph.addVertexAndFollowees(srcId_i, followees);
-				// _graph.addVertexAndFollowees(srcId_i, null);
-			}
-			in.close();
-
-			Map<Integer, HashSet<Integer>> vertexAndFollowees = _graph.getVertexAndFollowees();
-
-			Iterator<Entry<Integer, HashSet<Integer>>> it = vertexAndFollowees.entrySet().iterator();
-			while (it.hasNext()) {
-				Map.Entry<Integer, HashSet<Integer>> vAndF = (Map.Entry<Integer, HashSet<Integer>>) it.next();
-				Integer follower = vAndF.getKey();
-				HashSet<Integer> followees = vAndF.getValue();
-				for (Integer followee : followees)
-					if (vertexAndFollowees.containsKey(followee) || test_vertices.contains(followee))
-						_graph.addVertexAndFollower(followee, follower);
-			}
-
-		} catch (Exception e) {
-			System.err.println("Error: " + e.getMessage());
-			e.printStackTrace();
-		}
-	}
 }
