@@ -22,7 +22,7 @@ public class Measures {
 
 	private double pageRank = 0.0;
 
-	private final double MIN_CUT_OFF = 0.0000001;
+//	private final double MIN_CUT_OFF = 0.0000001;
 
 	public Measures() {
 

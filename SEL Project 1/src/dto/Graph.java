@@ -68,10 +68,9 @@ public class Graph {
 	 *         specified number of iterations.
 	 */
 	public Map<Integer, Double> calcPageRank(Integer start_node, Map<Integer, Double> initProbs, int numIterations) {
-		// if (numIterations <= 0) {
-		// return initProbs;
-		// } else {
-		while (numIterations > 0) {
+
+		for (int i = numIterations; i > 0; i--) {
+
 			HashMap<Integer, Double> updated_probs = new HashMap<Integer, Double>();
 			updated_probs.put(start_node, 1 - PR_alpha);
 
@@ -103,9 +102,10 @@ public class Graph {
 
 					updated_probs.put(neighbour, p + probToPropagate);
 				}
-				initProbs = updated_probs;
-				numIterations--;
 			}
+
+			initProbs = updated_probs;
+			// numIterations--;
 		}
 		return initProbs;
 	}
@@ -197,8 +197,7 @@ public class Graph {
 	}
 
 	public Set<Integer> getRandomPositiveEdges(Integer src_id) {
-		// TODO Auto-generated method stub
-
+		
 		HashSet<Integer> all_dest_ids = getFollowees(src_id);
 		HashSet<Integer> dest_ids = new HashSet<Integer>();
 

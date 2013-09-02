@@ -23,15 +23,14 @@ public class GraphManagerTest {
 		GraphManager g = new GraphManager();
 
 		HashSet<Integer> vertices_set = g.readTestVertices("test_final.txt");
-//		System.out.println(vertices_set.size());
 		g.readTrainGraphFromFile(vertices_set, "train_final_mod.txt");
 //		g.readTrainGraphFromFile(vertices_set, "train_final.txt");
 //		g.writeTrainFile(vertices_set, "train_set.txt");
 //		System.out.println("Write test file");
 // 		g.writeTestFile("test_final.txt", "test_set.txt");
 		
-		ArrayList<Edge> edges = g.getTestEdges("test_final.txt");
-		g.createThreads(edges, "out_train", "out_test");
+//		ArrayList<Edge> edges = g.getTestEdges("test_final.txt");
+//		g.writeFiles(edges, "out_train.txt", "out_test.txt");
 		
 	}
 

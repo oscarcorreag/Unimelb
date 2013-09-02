@@ -1,10 +1,12 @@
 package managers;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
@@ -28,14 +30,15 @@ public class GraphManager {
 	public Graph _graph;
 
 	final int MAX = 4;
-	final int NUM_THREADS = 4;
+	final int NUM_ITERATIONS = 2;
 
 	public GraphManager() {
 		_graph = new Graph();
 	}
 
 	/**
-	 * Read the test file given in the contest.
+	 * Read the test file given in the contest and returns a unique list with
+	 * both followers and followings.
 	 * 
 	 * @param in_file
 	 *            Name of the test file given in the contest.
@@ -72,23 +75,33 @@ public class GraphManager {
 	}
 
 	/**
+	 * Read the training file which contains the adjacency list and loads the
+	 * graph structures: ADJACENCY LIST, INVERTED ADJACENCY LIST AND NEGATIVE
+	 * ADJACENCY LIST.
 	 * 
 	 * @param test_vertices
+	 *            List of vertices which are used for determining the INVERTED
+	 *            ADJACENCY LIST.
 	 * @param in_file
+	 *            Name of the file which contains the adjacency list.
 	 */
 	public void readTrainGraphFromFile(HashSet<Integer> test_vertices, String in_file) {
 
 		try {
-			// Read the input file which
 			FileInputStream fstream = new FileInputStream(in_file);
 			DataInputStream in = new DataInputStream(fstream);
 			BufferedReader br = new BufferedReader(new InputStreamReader(in));
 
+			// Loads the graph structure which corresponds to the ORIGINAL
+			// ADJACENCY LIST into a map. The key in this map corresponds to the
+			// FOLLOWER and the values to the FOLLOWEES.
 			String strLine;
 
 			while ((strLine = br.readLine()) != null) {
+
 				String[] ids = strLine.split("\t");
 				Integer srcId_i = Integer.valueOf(ids[0]);
+
 				HashSet<Integer> followees = new HashSet<Integer>();
 
 				for (int i = 1; i < ids.length; i++) {
@@ -99,22 +112,33 @@ public class GraphManager {
 			}
 			in.close();
 
+			// Get the graph structure just created above in order to create the
+			// the NEGATIVE and INVERTED ADJACENCY LISTS.
 			Map<Integer, HashSet<Integer>> vertexAndFollowees = _graph.getVertexAndFollowees();
+			List<Integer> followersKeys = new ArrayList<Integer>(vertexAndFollowees.keySet());
 
 			Random random = new Random();
-			List<Integer> keys = new ArrayList<Integer>(vertexAndFollowees.keySet());
+
 			Iterator<Entry<Integer, HashSet<Integer>>> it = vertexAndFollowees.entrySet().iterator();
 
 			while (it.hasNext()) {
 
 				Map.Entry<Integer, HashSet<Integer>> vAndF = (Map.Entry<Integer, HashSet<Integer>>) it.next();
 
+				// Get the follower and followings.
 				Integer follower = vAndF.getKey();
 				HashSet<Integer> followees = vAndF.getValue();
 
+				// Loads the graph structure which corresponds to the NEGATIVE
+				// ADJACENCY LIST into a map. The key in this map corresponds to
+				// a RANDOM FOLLOWER taken from the ORIGINAL ADJACENCY LIST and
+				// the value corresponds to OTHER VERTICES WHICH ARE NOT
+				// FOLLOWED by this random one. The number of them is determined
+				// by a constant.
 				HashSet<Integer> notFollowees = new HashSet<Integer>();
+
 				for (int i = 0; i < MAX; i++) {
-					Integer randomKey = keys.get(random.nextInt(keys.size()));
+					Integer randomKey = followersKeys.get(random.nextInt(followersKeys.size()));
 
 					if (follower != randomKey && !followees.contains(randomKey)) {
 						notFollowees.add(randomKey);
@@ -122,6 +146,11 @@ public class GraphManager {
 				}
 				_graph.addVertexAndNotFollowees(follower, notFollowees);
 
+				// Loads the graph structure which corresponds to the INVERTED
+				// ADJACENCY LIST into a map. The key in this map corresponds to
+				// the FOLLOWEE and the values to the FOLLOWERS. However, NOT
+				// ALL FOLLOWEES are included, only those which FOLLOW someone
+				// or ARE PRESENT in the TEST set.
 				for (Integer followee : followees)
 					if (vertexAndFollowees.containsKey(followee) || test_vertices.contains(followee))
 						_graph.addVertexAndFollower(followee, follower);
@@ -134,148 +163,13 @@ public class GraphManager {
 	}
 
 	/**
+	 * Read the test file given in the contest and returns the list of the
+	 * edges.
 	 * 
-	 * @param vertices_set
-	 * @param out_file
+	 * @param test_file
+	 *            Name of the test file given in the contest.
+	 * @return List of edges.
 	 */
-	public void writeTrainFile(HashSet<Integer> vertices_set, String out_file) {
-
-		File trainFile = new File(out_file);
-
-		if (!trainFile.exists()) {
-			try {
-				trainFile.createNewFile();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
-
-		PrintWriter writer = null;
-
-		try {
-
-			writer = new PrintWriter(trainFile, "UTF-8");
-
-			Set<Integer> dest_ids;
-
-			Map<Integer, HashSet<Integer>> vertexAndNotFollowees = _graph.getVertexAndNotFollowees();
-
-			for (Integer src_id : vertices_set) {
-				// long t0 = System.currentTimeMillis();
-
-				HashMap<Integer, Double> init_probs = new HashMap<Integer, Double>();
-				init_probs.put(src_id, 1.0);
-
-				Map<Integer, Double> pr_probs = _graph.calcPageRank(src_id, init_probs, 2);
-				// System.out.println(System.currentTimeMillis() - t0);
-
-				dest_ids = _graph.getFollowees(src_id);
-
-				int i = 0;
-
-				if (dest_ids != null) {
-
-					for (Integer dest_id : dest_ids) {
-
-						if (i > MAX)
-							break;
-
-						if (_graph.getFollowees(dest_id) == null)
-							continue;
-
-						Measures m = _graph.calculateMeasures(src_id, dest_id, pr_probs);
-						// Measures m = _graph.calculateMeasures(src_id,
-						// dest_id);
-						writer.write(m.toString() + ",1\n");
-						i++;
-					}
-				}
-
-				Set<Integer> dest_ids_neg = vertexAndNotFollowees.get(src_id);
-
-				if (dest_ids_neg != null) {
-					for (Integer dest_id_neg : dest_ids_neg) {
-						Measures m = _graph.calculateMeasures(src_id, dest_id_neg, pr_probs); // pr_map_src
-						writer.write(m.toString() + ",-1\n");
-					}
-				}
-
-			}
-
-			// Iterator<Entry<Integer, HashSet<Integer>>> it =
-			// vertexAndNotFollowees.entrySet().iterator();
-			//
-			// while (it.hasNext()) {
-			//
-			// Map.Entry<Integer, HashSet<Integer>> vAndF = (Map.Entry<Integer,
-			// HashSet<Integer>>) it.next();
-			//
-			// Integer notFollower = vAndF.getKey();
-			// HashSet<Integer> notFollowees = vAndF.getValue();
-			//
-			// for (Integer notFollowee : notFollowees){
-			// Measures m = _graph.calculateMeasures(notFollower, notFollowee);
-			// writer.write(m.toString() + ",-1\n");
-			// }
-			// }
-
-		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (UnsupportedEncodingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} finally {
-			writer.close();
-		}
-	}
-
-	public void writeTestFile(String in_file, String out_file) {
-
-		File testFile = new File(out_file);
-		if (!testFile.exists()) {
-			try {
-				testFile.createNewFile();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
-		PrintWriter writer = null;
-		try {
-			writer = new PrintWriter(testFile, "UTF-8");
-
-			FileInputStream fstream = new FileInputStream(in_file);
-			DataInputStream in = new DataInputStream(fstream);
-			BufferedReader br = new BufferedReader(new InputStreamReader(in));
-
-			String strLine;
-			Measures m;
-
-			while ((strLine = br.readLine()) != null) {
-
-				String[] ids = strLine.split("\t");
-
-				Integer srcId_i = Integer.valueOf(ids[0]);
-				Integer destId_i = Integer.valueOf(ids[1]);
-
-				HashMap<Integer, Double> init_probs = new HashMap<Integer, Double>();
-				init_probs.put(srcId_i, 1.0);
-
-				Map<Integer, Double> pr_probs = _graph.calcPageRank(srcId_i, init_probs, 2);
-
-				// m = _graph.calculateMeasures(srcId_i, destId_i);
-				m = _graph.calculateMeasures(srcId_i, destId_i, pr_probs);
-				writer.write(m.toString() + ",?\n");
-			}
-			in.close();
-			writer.close();
-		} catch (Exception e) {
-			System.err.println("Error: " + e.getMessage());
-		}
-	}
-
 	public ArrayList<Edge> getTestEdges(String test_file) {
 
 		ArrayList<Edge> edges = new ArrayList<Edge>();
@@ -306,31 +200,101 @@ public class GraphManager {
 		return edges;
 	}
 
-	public void createThreads(ArrayList<Edge> edges, String trainFileName, String testFileName) {
+	/**
+	 * Write TRAIN and TEST files. These files include measures for each edge
+	 * which are used in a supervised learner.
+	 * 
+	 * @param out_train
+	 * @param out_test
+	 * @param edges
+	 */
+	public void writeFiles(String out_train, String out_test, ArrayList<Edge> edges) {
 
-		ArrayList<Thread> workers = new ArrayList<Thread>();
+		File trainFile = new File(out_train);
+		File testFile = new File(out_test);
 
-		int factor = edges.size() / NUM_THREADS;
-		int i;
-		for (i = 0; i < NUM_THREADS - 1; i++) {
-			int start = i * factor;
-			int end = (i + 1) * factor;
-			List<Edge> subListEdges = edges.subList(start, end);
-			workers.add(new Thread(new Worker(_graph, subListEdges, trainFileName + "_" + i + ".txt", testFileName + "_" + i + ".txt")));
+		try {
+			if (!trainFile.exists())
+				trainFile.createNewFile();
+
+			if (!testFile.exists())
+				testFile.createNewFile();
+
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
-		List<Edge> subListEdges = edges.subList(i * factor, edges.size());
-		workers.add(new Thread(new Worker(_graph, subListEdges, trainFileName + "_" + i + ".txt", testFileName + "_" + i + ".txt")));
 
-		for (Thread w : workers)
-			w.start();
-		for (Thread w : workers)
-			try {
-				w.join();
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+		PrintWriter writerTrain = null;
+		PrintWriter writerTest = null;
+
+		try {
+			writerTrain = new PrintWriter(new BufferedWriter(new FileWriter(out_train)));
+			writerTest = new PrintWriter(new BufferedWriter(new FileWriter(out_test)));
+
+			Map<Integer, HashSet<Integer>> vertexAndFollowees = _graph.getVertexAndFollowees();
+
+			for (Edge edge : edges) {
+
+				Integer src_id = edge.getSourceId();
+
+				// Calculate the page rank for the current source node. This is
+				// a map which contains the probabilities for this node and its
+				// neighbors.
+				Map<Integer, Double> initProbs = new HashMap<Integer, Double>();
+				initProbs.put(src_id, 1.0);
+				Map<Integer, Double> pageRankProbs = _graph.calcPageRank(src_id, initProbs, NUM_ITERATIONS);
+
+				// If the source node appears as a FOLLOWER in the ORIGINAL
+				// ADJACENCY LIST, but the destination node IS NOT FOLLOWED by
+				// the former; create an EMPTY Measures object. Assumption: the
+				// FOLLOWERS in the ORIGINAL ADJACENCY LIST have been completely
+				// crawled.
+				HashSet<Integer> followees = vertexAndFollowees.get(src_id);
+
+				if (followees != null && !followees.contains(edge.getDestinationId())) {
+					writerTrain.write(new Measures().toString() + ",-1\n");
+				} else {
+
+					// Get random POSITIVE edges for TRAINING SET, calculate
+					// their
+					// measures and write to the file.
+					Set<Integer> posDestIds = _graph.getRandomPositiveEdges(src_id);
+					for (Integer dest_id : posDestIds) {
+						Measures m = _graph.calculateMeasures(src_id, dest_id, pageRankProbs);
+						writerTrain.write(m.toString() + ",1\n");
+					}
+
+					// Get random NEGATIVE edges for TRAINING SET, calculate
+					// their
+					// measures and write to the file.
+					Set<Integer> negDestIds = _graph.getRandomNegativeEdges(src_id);
+					if (negDestIds != null) {
+						for (Integer dest_id : negDestIds) {
+							Measures m = _graph.calculateMeasures(src_id, dest_id, pageRankProbs);
+							writerTrain.write(m.toString() + ",-1\n");
+						}
+					}
+				}
+
+				// Calculate measures for TEST instances and write to the file.
+				Measures m = _graph.calculateMeasures(src_id, edge.getDestinationId(), pageRankProbs);
+				writerTest.write(m.toString() + ",?\n");
+
 			}
-
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (UnsupportedEncodingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} finally {
+			writerTrain.close();
+			writerTest.close();
+		}
 	}
 
 }
