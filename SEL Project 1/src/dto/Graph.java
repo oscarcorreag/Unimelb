@@ -141,7 +141,8 @@ public class Graph {
 
 			followees_i.retainAll(followees_v1);
 			followees_u.addAll(followees_v1);
-			int intersectionFollowees = followees_i.size()
+			
+			int intersectionFollowees = followees_i.size();
 
 			m.setIntersectionFollowees(intersectionFollowees);
 			if (intersectionFollowees != 0)	m.setAdamicAdarFollowees(1/(Math.log(intersectionFollowees)));
@@ -160,7 +161,8 @@ public class Graph {
 
 			followers_i.retainAll(followers_v1);
 			followers_u.addAll(followers_v1);
-			int intersectionFollowers = followers_i.size()
+			
+			int intersectionFollowers = followers_i.size();
 
 			m.setIntersectionFollowers(intersectionFollowers);
 			if (intersectionFollowers != 0)	m.setAdamicAdarFollowers(1/(Math.log(intersectionFollowers)));
