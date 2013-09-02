@@ -29,7 +29,7 @@ public class GraphManager {
 
 	public Graph _graph;
 
-	final int MAX = 4;
+	final int MAX = 2;
 	final int NUM_ITERATIONS = 2;
 
 	public GraphManager() {
@@ -238,13 +238,6 @@ public class GraphManager {
 
 				Integer src_id = edge.getSourceId();
 
-				// Calculate the page rank for the current source node. This is
-				// a map which contains the probabilities for this node and its
-				// neighbors.
-				Map<Integer, Double> initProbs = new HashMap<Integer, Double>();
-				initProbs.put(src_id, 1.0);
-				Map<Integer, Double> pageRankProbs = _graph.calcPageRank(src_id, initProbs, NUM_ITERATIONS);
-
 				// If the source node appears as a FOLLOWER in the ORIGINAL
 				// ADJACENCY LIST, but the destination node IS NOT FOLLOWED by
 				// the former; create an EMPTY Measures object. Assumption: the
@@ -253,13 +246,20 @@ public class GraphManager {
 				HashSet<Integer> followees = vertexAndFollowees.get(src_id);
 
 				if (followees != null && !followees.contains(edge.getDestinationId())) {
-					writerTrain.write(new Measures().toString() + ",-1\n");
+					writerTest.write(new Measures().toString() + ",?\n");
 				} else {
+
+					// Calculate the page rank for the current source node. This
+					// is a map which contains the probabilities for this node
+					// and its neighbors.
+					Map<Integer, Double> initProbs = new HashMap<Integer, Double>();
+					initProbs.put(src_id, 1.0);
+					Map<Integer, Double> pageRankProbs = _graph.calcPageRank(src_id, initProbs, NUM_ITERATIONS);
 
 					// Get random POSITIVE edges for TRAINING SET, calculate
 					// their
 					// measures and write to the file.
-					Set<Integer> posDestIds = _graph.getRandomPositiveEdges(src_id);
+					Set<Integer> posDestIds = _graph.getRandomPositiveEdges(src_id, MAX);
 					for (Integer dest_id : posDestIds) {
 						Measures m = _graph.calculateMeasures(src_id, dest_id, pageRankProbs);
 						writerTrain.write(m.toString() + ",1\n");
@@ -275,12 +275,12 @@ public class GraphManager {
 							writerTrain.write(m.toString() + ",-1\n");
 						}
 					}
+
+					// Calculate measures for TEST instances and write to the
+					// file.
+					Measures m = _graph.calculateMeasures(src_id, edge.getDestinationId(), pageRankProbs);
+					writerTest.write(m.toString() + ",?\n");
 				}
-
-				// Calculate measures for TEST instances and write to the file.
-				Measures m = _graph.calculateMeasures(src_id, edge.getDestinationId(), pageRankProbs);
-				writerTest.write(m.toString() + ",?\n");
-
 			}
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block

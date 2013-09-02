@@ -141,14 +141,15 @@ public class Graph {
 
 			followees_i.retainAll(followees_v1);
 			followees_u.addAll(followees_v1);
-			
+
 			int intersectionFollowees = followees_i.size();
 
 			m.setIntersectionFollowees(intersectionFollowees);
-			if (intersectionFollowees != 0)	m.setAdamicAdarFollowees(1/(Math.log(intersectionFollowees)));
+			if (intersectionFollowees != 0)
+				m.setAdamicAdarFollowees(1 / (Math.log(intersectionFollowees)));
 
 			if (followees_u.size() > 0)
-				m.setJaccardFollowees(intersectionFollowees/ followees_u.size());
+				m.setJaccardFollowees(intersectionFollowees / followees_u.size());
 
 			if (followees_v1.size() > 0 && followees_v2.size() > 0)
 				m.setCosineFollowees(intersectionFollowees / Math.sqrt(followees_v1.size() * followees_v2.size()));
@@ -161,11 +162,12 @@ public class Graph {
 
 			followers_i.retainAll(followers_v1);
 			followers_u.addAll(followers_v1);
-			
+
 			int intersectionFollowers = followers_i.size();
 
 			m.setIntersectionFollowers(intersectionFollowers);
-			if (intersectionFollowers != 0)	m.setAdamicAdarFollowers(1/(Math.log(intersectionFollowers)));
+			if (intersectionFollowers != 0)
+				m.setAdamicAdarFollowers(1 / (Math.log(intersectionFollowers)));
 
 			if (followers_u.size() > 0)
 				m.setJaccardFollowers(intersectionFollowers / followers_u.size());
@@ -202,8 +204,8 @@ public class Graph {
 		return _vertexAndNotFollowees;
 	}
 
-	public Set<Integer> getRandomPositiveEdges(Integer src_id) {
-		
+	public Set<Integer> getRandomPositiveEdges(Integer src_id, int max) {
+
 		HashSet<Integer> all_dest_ids = getFollowees(src_id);
 		HashSet<Integer> dest_ids = new HashSet<Integer>();
 
@@ -213,7 +215,7 @@ public class Graph {
 
 			for (Integer dest_id : all_dest_ids) {
 
-				if (i > 4)
+				if (i > max)
 					break;
 
 				if (getFollowees(dest_id) == null)
