@@ -68,9 +68,10 @@ public class Graph {
 	 *         specified number of iterations.
 	 */
 	public Map<Integer, Double> calcPageRank(Integer start_node, Map<Integer, Double> initProbs, int numIterations) {
-		if (numIterations <= 0) {
-			return initProbs;
-		} else {
+		// if (numIterations <= 0) {
+		// return initProbs;
+		// } else {
+		while (numIterations > 0) {
 			HashMap<Integer, Double> updated_probs = new HashMap<Integer, Double>();
 			updated_probs.put(start_node, 1 - PR_alpha);
 
@@ -88,8 +89,12 @@ public class Graph {
 					neighbours.addAll(_vertexAndFollowees.get(node));
 				if (foll2)
 					neighbours.addAll(_vertexAndFollowers.get(node));
-				Double log_sz = Math.log(neighbours.size());
-				probToPropagate = (PR_alpha * prob) / log_sz;
+
+				int sz = neighbours.size();
+				if (sz > 10)
+					probToPropagate = (PR_alpha * prob) / Math.log(sz);
+				else
+					probToPropagate = PR_alpha * prob;
 				for (Integer neighbour : neighbours) {
 					if (initProbs.containsKey(neighbour))
 						p = initProbs.get(neighbour);
@@ -98,10 +103,11 @@ public class Graph {
 
 					updated_probs.put(neighbour, p + probToPropagate);
 				}
+				initProbs = updated_probs;
+				numIterations--;
 			}
-			return calcPageRank(start_node, updated_probs, numIterations - 1);
 		}
-
+		return initProbs;
 	}
 
 	public Measures calculateMeasures(Integer v1, Integer v2, Map<Integer, Double> pr_probs) {
@@ -216,8 +222,9 @@ public class Graph {
 	}
 
 	public Set<Integer> getRandomNegativeEdges(Integer src_id) {
-		return this._vertexAndNotFollowees.get(src_id);
-
+		if (this._vertexAndNotFollowees.containsKey(src_id))
+			return this._vertexAndNotFollowees.get(src_id);
+		return null;
 	}
 
 }

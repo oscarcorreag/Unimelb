@@ -28,7 +28,7 @@ public class GraphManager {
 	public Graph _graph;
 
 	final int MAX = 4;
-	final int NUM_THREADS = 8;
+	final int NUM_THREADS = 4;
 
 	public GraphManager() {
 		_graph = new Graph();
@@ -308,20 +308,22 @@ public class GraphManager {
 
 	public void createThreads(ArrayList<Edge> edges, String trainFileName, String testFileName) {
 
-		ArrayList<Worker> workers = new ArrayList<Worker>();
+		ArrayList<Thread> workers = new ArrayList<Thread>();
 
 		int factor = edges.size() / NUM_THREADS;
 		int i;
 		for (i = 0; i < NUM_THREADS - 1; i++) {
-			ArrayList<Edge> subListEdges = (ArrayList<Edge>) edges.subList(i * factor, (i + 1) * factor);
-			workers.add(new Worker(_graph, subListEdges, trainFileName + "_" + i + ".txt", testFileName + "_" + i + ".txt"));
+			int start = i * factor;
+			int end = (i + 1) * factor;
+			List<Edge> subListEdges = edges.subList(start, end);
+			workers.add(new Thread(new Worker(_graph, subListEdges, trainFileName + "_" + i + ".txt", testFileName + "_" + i + ".txt")));
 		}
-		ArrayList<Edge> subListEdges = (ArrayList<Edge>) edges.subList(i * factor, edges.size());
-		workers.add(new Worker(_graph, subListEdges, trainFileName + "_" + i + ".txt", testFileName + "_" + i + ".txt"));
+		List<Edge> subListEdges = edges.subList(i * factor, edges.size());
+		workers.add(new Thread(new Worker(_graph, subListEdges, trainFileName + "_" + i + ".txt", testFileName + "_" + i + ".txt")));
 
-		for (Worker w : workers)
-			w.run();
-		for (Worker w : workers)
+		for (Thread w : workers)
+			w.start();
+		for (Thread w : workers)
 			try {
 				w.join();
 			} catch (InterruptedException e) {
