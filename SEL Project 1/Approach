@@ -1,0 +1,62 @@
+
+----------------
+
+old approach 
+
+reading all the 400 vertices into a set -
+> 3950
+
+for each of these 3950 (src), get 4 random pos edge and get 4 random neg edges (dest)  - total 4000 * 8 train lines
+  - for each src, cal page rank
+  - for each src - dest pair, calc features and write to file
+
+read all the test edges (src -dest)
+  for each edge, 
+     calc pagerank for src,
+     and cal features for src-dest pair
+
+
+-------------------------------------------------------------
+
+new approach
+
+
+read test edges all together into an array list (total 2000)
+
+
+//function : write test and train files
+
+Worker(arraylist, testfilename, trainfilename)
+for each edge : arraylist (src - dest)
+  calc pagerank for edge.src
+  
+  - for the source, get 8 random pos edge and get 8 random neg edges (dest) -- total 2000 * 8 train lines 
+       -Measures m =  calcMeasures for all the 8 edges
+        Write_to_trainfilename( m )
+
+  - calcMeasures for src-dest (test)
+  - write to test file 
+
+ 
+ 
+class edge
+{ int src;
+int dest;
+}
+
+ArrayList<edge>
+
+
+
+read test edges all together into this array list (so, length 2000)
+
+NUM_THREADS = 8;
+factor = 2000 / NUM_THREADS ;  //make sure 2000 is divisible by NUM_THREADS
+
+trainfile = "Train-set"
+testfile = "test-set"
+for (i = 0; i <= 8 ; i++)
+   arri = arraylist.subList(i * 250, (i+1) * 250 )  
+   
+   worker( arri, trainfile + i, testfile + i )
+
