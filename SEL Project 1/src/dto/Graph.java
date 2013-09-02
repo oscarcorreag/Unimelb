@@ -141,14 +141,16 @@ public class Graph {
 
 			followees_i.retainAll(followees_v1);
 			followees_u.addAll(followees_v1);
+			int intersectionFollowees = followees_i.size()
 
-			m.setIntersectionFollowees(followees_i.size());
+			m.setIntersectionFollowees(intersectionFollowees);
+			if (intersectionFollowees != 0)	m.setAdamicAdarFollowees(1/(Math.log(intersectionFollowees)));
 
 			if (followees_u.size() > 0)
-				m.setJaccardFollowees(m.getIntersectionFollowees() / followees_u.size());
+				m.setJaccardFollowees(intersectionFollowees/ followees_u.size());
 
 			if (followees_v1.size() > 0 && followees_v2.size() > 0)
-				m.setCosineFollowees(m.getIntersectionFollowees() / Math.sqrt(followees_v1.size() * followees_v2.size()));
+				m.setCosineFollowees(intersectionFollowees / Math.sqrt(followees_v1.size() * followees_v2.size()));
 		}
 
 		if (followers_v1 != null && followers_v2 != null) {
@@ -158,14 +160,16 @@ public class Graph {
 
 			followers_i.retainAll(followers_v1);
 			followers_u.addAll(followers_v1);
+			int intersectionFollowers = followers_i.size()
 
-			m.setIntersectionFollowers(followers_i.size());
+			m.setIntersectionFollowers(intersectionFollowers);
+			if (intersectionFollowers != 0)	m.setAdamicAdarFollowers(1/(Math.log(intersectionFollowers)));
 
 			if (followers_u.size() > 0)
-				m.setJaccardFollowers(m.getIntersectionFollowers() / followers_u.size());
+				m.setJaccardFollowers(intersectionFollowers / followers_u.size());
 
 			if (followers_v1.size() > 0 && followers_v2.size() > 0)
-				m.setCosineFollowers(m.getIntersectionFollowers() / Math.sqrt(followers_v1.size() * followers_v2.size()));
+				m.setCosineFollowers(intersectionFollowers / Math.sqrt(followers_v1.size() * followers_v2.size()));
 		}
 
 		if (pr_probs.containsKey(v2))

@@ -7,10 +7,12 @@ public class Measures {
 	private double intersectionFollowees;
 	private double jaccardFollowees;
 	private double cosineFollowees;
+	private double adamicAdarFollowees;
 
 	private double intersectionFollowers;
 	private double jaccardFollowers;
 	private double cosineFollowers;
+	private double adamicAdarFollowers;
 
 	private int numFolloweesSrc = 0;
 	private int numFolloweesDes = 0;
@@ -62,6 +64,10 @@ public class Measures {
 		// return cosineFollowees > MIN_CUT_OFF ? cosineFollowees : 0.0;
 		return cosineFollowees;
 	}
+	
+	public double getAdamicAdarFollowees() {
+ 		return adamicAdarFollowees;
+	}
 
 	public double getIntersectionFollowers() {
 		return intersectionFollowers;
@@ -75,6 +81,11 @@ public class Measures {
 	public double getCosineFollowers() {
 		// return cosineFollowers > MIN_CUT_OFF ? cosineFollowers : 0.0;
 		return cosineFollowers;
+	}
+
+	
+	public double getAdamicAdarFollowers() {
+ 		return adamicAdarFollowers;
 	}
 
 	public int getNumFolloweesSrc() {
@@ -120,6 +131,10 @@ public class Measures {
 	public void setCosineFollowees(double cosineFollowees) {
 		this.cosineFollowees = cosineFollowees;
 	}
+	
+	public void setAdamicAdarFollowees(double adamicAdarFollowees) {
+		this.adamicAdarFollowees = adamicAdarFollowees;
+	}
 
 	public void setIntersectionFollowers(double intersectionFollowers) {
 		this.intersectionFollowers = intersectionFollowers;
@@ -131,6 +146,9 @@ public class Measures {
 
 	public void setCosineFollowers(double cosineFollowers) {
 		this.cosineFollowers = cosineFollowers;
+	}
+	public void setAdamicAdarFollowers(double adamicAdarFollowers) {
+		this.adamicAdarFollowers = adamicAdarFollowers;
 	}
 
 	public void setNumFolloweesSrc(int numFolloweesSrc) {
