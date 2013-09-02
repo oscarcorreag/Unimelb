@@ -232,7 +232,7 @@ public class GraphManager {
 			writerTrain = new PrintWriter(new BufferedWriter(new FileWriter(out_train)));
 			writerTest = new PrintWriter(new BufferedWriter(new FileWriter(out_test)));
 
-			Map<Integer, HashSet<Integer>> vertexAndFollowees = _graph.getVertexAndFollowees();
+//			Map<Integer, HashSet<Integer>> vertexAndFollowees = _graph.getVertexAndFollowees();
 
 			for (Edge edge : edges) {
 
@@ -243,11 +243,11 @@ public class GraphManager {
 				// the former; create an EMPTY Measures object. Assumption: the
 				// FOLLOWERS in the ORIGINAL ADJACENCY LIST have been completely
 				// crawled.
-				HashSet<Integer> followees = vertexAndFollowees.get(src_id);
-
-				if (followees != null && !followees.contains(edge.getDestinationId())) {
-					writerTest.write(new Measures().toString() + ",?\n");
-				} else {
+//				HashSet<Integer> followees = vertexAndFollowees.get(src_id);
+//
+//				if (followees != null && !followees.contains(edge.getDestinationId())) {
+//					writerTest.write(new Measures().toString() + ",?\n");
+//				} else {
 
 					// Calculate the page rank for the current source node. This
 					// is a map which contains the probabilities for this node
@@ -281,7 +281,7 @@ public class GraphManager {
 					Measures m = _graph.calculateMeasures(src_id, edge.getDestinationId(), pageRankProbs);
 					writerTest.write(m.toString() + ",?\n");
 				}
-			}
+//			}
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
