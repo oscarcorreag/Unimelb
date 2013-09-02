@@ -3,6 +3,7 @@ package dto;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 public class Graph {
 
@@ -66,16 +67,16 @@ public class Graph {
 	 * @return A map of node -> probability of landing at that node after the
 	 *         specified number of iterations.
 	 */
-	public HashMap<Integer, Double> calcPageRank(Integer start_node, HashMap<Integer, Double> init_probs, int numIterations) {
+	public Map<Integer, Double> calcPageRank(Integer start_node, Map<Integer, Double> initProbs, int numIterations) {
 		if (numIterations <= 0) {
-			return init_probs;
+			return initProbs;
 		} else {
 			HashMap<Integer, Double> updated_probs = new HashMap<Integer, Double>();
 			updated_probs.put(start_node, 1 - PR_alpha);
 
 			Double probToPropagate;
 			Double p;
-			for (Map.Entry<Integer, Double> entry : init_probs.entrySet()) {
+			for (Map.Entry<Integer, Double> entry : initProbs.entrySet()) {
 				Integer node = entry.getKey();
 				Double prob = entry.getValue();
 				HashSet<Integer> neighbours = new HashSet<Integer>();
@@ -90,8 +91,8 @@ public class Graph {
 				Double log_sz = Math.log(neighbours.size());
 				probToPropagate = (PR_alpha * prob) / log_sz;
 				for (Integer neighbour : neighbours) {
-					if (init_probs.containsKey(neighbour))
-						p = init_probs.get(neighbour);
+					if (initProbs.containsKey(neighbour))
+						p = initProbs.get(neighbour);
 					else
 						p = 0.0;
 
@@ -103,7 +104,7 @@ public class Graph {
 
 	}
 
-	public Measures calculateMeasures(Integer v1, Integer v2, HashMap<Integer, Double> pr_probs) {
+	public Measures calculateMeasures(Integer v1, Integer v2, Map<Integer, Double> pr_probs) {
 
 		Measures m = new Measures();
 
@@ -159,11 +160,11 @@ public class Graph {
 
 			if (followers_v1.size() > 0 && followers_v2.size() > 0)
 				m.setCosineFollowers(m.getIntersectionFollowers() / Math.sqrt(followers_v1.size() * followers_v2.size()));
-		}		
+		}
 
 		if (pr_probs.containsKey(v2))
 			m.setPageRank(pr_probs.get(v2));
-		
+
 		return m;
 	}
 
@@ -187,6 +188,36 @@ public class Graph {
 
 	public Map<Integer, HashSet<Integer>> getVertexAndNotFollowees() {
 		return _vertexAndNotFollowees;
+	}
+
+	public Set<Integer> getRandomPositiveEdges(Integer src_id) {
+		// TODO Auto-generated method stub
+
+		HashSet<Integer> all_dest_ids = getFollowees(src_id);
+		HashSet<Integer> dest_ids = new HashSet<Integer>();
+
+		int i = 0;
+
+		if (all_dest_ids != null) {
+
+			for (Integer dest_id : all_dest_ids) {
+
+				if (i > 4)
+					break;
+
+				if (getFollowees(dest_id) == null)
+					continue;
+				dest_ids.add(dest_id);
+				i++;
+			}
+		}
+
+		return dest_ids;
+	}
+
+	public Set<Integer> getRandomNegativeEdges(Integer src_id) {
+		return this._vertexAndNotFollowees.get(src_id);
+
 	}
 
 }

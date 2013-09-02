@@ -19,6 +19,7 @@ import java.util.Map.Entry;
 import java.util.Random;
 import java.util.Set;
 
+import dto.Edge;
 import dto.Graph;
 import dto.Measures;
 
@@ -27,6 +28,7 @@ public class GraphManager {
 	public Graph _graph;
 
 	final int MAX = 4;
+	final int NUM_THREADS = 8;
 
 	public GraphManager() {
 		_graph = new Graph();
@@ -165,7 +167,7 @@ public class GraphManager {
 				HashMap<Integer, Double> init_probs = new HashMap<Integer, Double>();
 				init_probs.put(src_id, 1.0);
 
-				HashMap<Integer, Double> pr_probs = _graph.calcPageRank(src_id, init_probs, 2);
+				Map<Integer, Double> pr_probs = _graph.calcPageRank(src_id, init_probs, 2);
 				// System.out.println(System.currentTimeMillis() - t0);
 
 				dest_ids = _graph.getFollowees(src_id);
@@ -261,7 +263,7 @@ public class GraphManager {
 				HashMap<Integer, Double> init_probs = new HashMap<Integer, Double>();
 				init_probs.put(srcId_i, 1.0);
 
-				HashMap<Integer, Double> pr_probs = _graph.calcPageRank(srcId_i, init_probs, 2);
+				Map<Integer, Double> pr_probs = _graph.calcPageRank(srcId_i, init_probs, 2);
 
 				// m = _graph.calculateMeasures(srcId_i, destId_i);
 				m = _graph.calculateMeasures(srcId_i, destId_i, pr_probs);
@@ -272,6 +274,61 @@ public class GraphManager {
 		} catch (Exception e) {
 			System.err.println("Error: " + e.getMessage());
 		}
+	}
+
+	public ArrayList<Edge> getTestEdges(String test_file) {
+
+		ArrayList<Edge> edges = new ArrayList<Edge>();
+
+		try {
+			FileInputStream fstream = new FileInputStream(test_file);
+			DataInputStream in = new DataInputStream(fstream);
+			BufferedReader br = new BufferedReader(new InputStreamReader(in));
+
+			String strLine;
+
+			while ((strLine = br.readLine()) != null) {
+
+				String[] ids = strLine.split("\t");
+
+				Integer srcId_i = Integer.valueOf(ids[0]);
+				Integer destId_i = Integer.valueOf(ids[1]);
+
+				Edge edge = new Edge(srcId_i, destId_i);
+
+				edges.add(edge);
+			}
+			in.close();
+
+		} catch (Exception e) {
+			System.err.println("Error: " + e.getMessage());
+		}
+		return edges;
+	}
+
+	public void createThreads(ArrayList<Edge> edges, String trainFileName, String testFileName) {
+
+		ArrayList<Worker> workers = new ArrayList<Worker>();
+
+		int factor = edges.size() / NUM_THREADS;
+		int i;
+		for (i = 0; i < NUM_THREADS - 1; i++) {
+			ArrayList<Edge> subListEdges = (ArrayList<Edge>) edges.subList(i * factor, (i + 1) * factor);
+			workers.add(new Worker(_graph, subListEdges, trainFileName + "_" + i + ".txt", testFileName + "_" + i + ".txt"));
+		}
+		ArrayList<Edge> subListEdges = (ArrayList<Edge>) edges.subList(i * factor, edges.size());
+		workers.add(new Worker(_graph, subListEdges, trainFileName + "_" + i + ".txt", testFileName + "_" + i + ".txt"));
+
+		for (Worker w : workers)
+			w.run();
+		for (Worker w : workers)
+			try {
+				w.join();
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
 	}
 
 }
