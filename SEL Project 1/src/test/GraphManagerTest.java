@@ -23,7 +23,8 @@ public class GraphManagerTest {
 		System.out.println(vertices_set.size());
 		g.readTrainGraphFromFile(vertices_set, "train_final_mod.txt");
 //		g.readTrainGraphFromFile(vertices_set, "train_final.txt");
-		g.writeTrainFile(vertices_set, "train_set.txt");
+//		g.writeTrainFile(vertices_set, "train_set.txt");
+		System.out.println("Write test file");
 		g.writeTestFile("test_final.txt", "test_set.txt");
 	}
 

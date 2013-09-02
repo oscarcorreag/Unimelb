@@ -32,8 +32,47 @@ public class GraphManager {
 		_graph = new Graph();
 	}
 
-	/*
+	/**
+	 * Read the test file given in the contest.
 	 * 
+	 * @param in_file
+	 *            Name of the test file given in the contest.
+	 * @return HashSet which contains the ID's of the vertices in the test file.
+	 *         This list contains both the source and destination id's.
+	 */
+	public HashSet<Integer> readTestVertices(String in_file) {
+
+		HashSet<Integer> vertices = new HashSet<Integer>();
+
+		try {
+			FileInputStream fstream = new FileInputStream(in_file);
+			DataInputStream in = new DataInputStream(fstream);
+			BufferedReader br = new BufferedReader(new InputStreamReader(in));
+
+			String strLine;
+
+			while ((strLine = br.readLine()) != null) {
+
+				String[] ids = strLine.split("\t");
+
+				Integer srcId_i = Integer.valueOf(ids[0]);
+				vertices.add(srcId_i);
+
+				Integer destId_i = Integer.valueOf(ids[1]);
+				vertices.add(destId_i);
+			}
+			in.close();
+
+		} catch (Exception e) {
+			System.err.println("Error: " + e.getMessage());
+		}
+		return vertices;
+	}
+
+	/**
+	 * 
+	 * @param test_vertices
+	 * @param in_file
 	 */
 	public void readTrainGraphFromFile(HashSet<Integer> test_vertices, String in_file) {
 
@@ -92,41 +131,10 @@ public class GraphManager {
 		}
 	}
 
-	/*
+	/**
 	 * 
-	 */
-	public HashSet<Integer> readTestVertices(String in_file) {
-
-		HashSet<Integer> vertices = new HashSet<Integer>();
-
-		try {
-
-			FileInputStream fstream = new FileInputStream(in_file);
-			DataInputStream in = new DataInputStream(fstream);
-			BufferedReader br = new BufferedReader(new InputStreamReader(in));
-
-			String strLine;
-
-			while ((strLine = br.readLine()) != null) {
-
-				String[] ids = strLine.split("\t");
-
-				Integer srcId_i = Integer.valueOf(ids[0]);
-				vertices.add(srcId_i);
-
-				Integer destId_i = Integer.valueOf(ids[1]);
-				vertices.add(destId_i);
-			}
-			in.close();
-
-		} catch (Exception e) {
-			System.err.println("Error: " + e.getMessage());
-		}
-		return vertices;
-	}
-
-	/*
-	 * 
+	 * @param vertices_set
+	 * @param out_file
 	 */
 	public void writeTrainFile(HashSet<Integer> vertices_set, String out_file) {
 
@@ -152,13 +160,13 @@ public class GraphManager {
 			Map<Integer, HashSet<Integer>> vertexAndNotFollowees = _graph.getVertexAndNotFollowees();
 
 			for (Integer src_id : vertices_set) {
-//				long t0 = System.currentTimeMillis();
- 
+				// long t0 = System.currentTimeMillis();
+
 				HashMap<Integer, Double> init_probs = new HashMap<Integer, Double>();
 				init_probs.put(src_id, 1.0);
 
 				HashMap<Integer, Double> pr_probs = _graph.calcPageRank(src_id, init_probs, 2);
-//				System.out.println(System.currentTimeMillis() - t0);
+				// System.out.println(System.currentTimeMillis() - t0);
 
 				dest_ids = _graph.getFollowees(src_id);
 
