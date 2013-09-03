@@ -45,6 +45,7 @@ public class GraphManager {
 	 * @return HashSet which contains the ID's of the vertices in the test file.
 	 *         This list contains both the source and destination id's.
 	 */
+
 	public HashSet<Integer> readTestVertices(String in_file) {
 
 		HashSet<Integer> vertices = new HashSet<Integer>();
@@ -85,7 +86,8 @@ public class GraphManager {
 	 * @param in_file
 	 *            Name of the file which contains the adjacency list.
 	 */
-	public void readTrainGraphFromFile(HashSet<Integer> test_vertices, String in_file) {
+	public void readTrainGraphFromFile(HashSet<Integer> test_vertices,
+			String in_file) {
 
 		try {
 			FileInputStream fstream = new FileInputStream(in_file);
@@ -114,16 +116,20 @@ public class GraphManager {
 
 			// Get the graph structure just created above in order to create the
 			// the NEGATIVE and INVERTED ADJACENCY LISTS.
-			Map<Integer, HashSet<Integer>> vertexAndFollowees = _graph.getVertexAndFollowees();
-			List<Integer> followersKeys = new ArrayList<Integer>(vertexAndFollowees.keySet());
+			Map<Integer, HashSet<Integer>> vertexAndFollowees = _graph
+					.getVertexAndFollowees();
+			List<Integer> followersKeys = new ArrayList<Integer>(
+					vertexAndFollowees.keySet());
 
 			Random random = new Random();
 
-			Iterator<Entry<Integer, HashSet<Integer>>> it = vertexAndFollowees.entrySet().iterator();
+			Iterator<Entry<Integer, HashSet<Integer>>> it = vertexAndFollowees
+					.entrySet().iterator();
 
 			while (it.hasNext()) {
 
-				Map.Entry<Integer, HashSet<Integer>> vAndF = (Map.Entry<Integer, HashSet<Integer>>) it.next();
+				Map.Entry<Integer, HashSet<Integer>> vAndF = (Map.Entry<Integer, HashSet<Integer>>) it
+						.next();
 
 				// Get the follower and followings.
 				Integer follower = vAndF.getKey();
@@ -138,7 +144,8 @@ public class GraphManager {
 				HashSet<Integer> notFollowees = new HashSet<Integer>();
 
 				for (int i = 0; i < MAX; i++) {
-					Integer randomKey = followersKeys.get(random.nextInt(followersKeys.size()));
+					Integer randomKey = followersKeys.get(random
+							.nextInt(followersKeys.size()));
 
 					if (follower != randomKey && !followees.contains(randomKey)) {
 						notFollowees.add(randomKey);
@@ -152,7 +159,8 @@ public class GraphManager {
 				// ALL FOLLOWEES are included, only those which FOLLOW someone
 				// or ARE PRESENT in the TEST set.
 				for (Integer followee : followees)
-					if (vertexAndFollowees.containsKey(followee) || test_vertices.contains(followee))
+					if (vertexAndFollowees.containsKey(followee)
+							|| test_vertices.contains(followee))
 						_graph.addVertexAndFollower(followee, follower);
 			}
 
@@ -208,8 +216,9 @@ public class GraphManager {
 	 * @param out_test
 	 * @param edges
 	 */
-	public void writeFiles(String out_train, String out_test, ArrayList<Edge> edges) {
-
+	public void writeFiles(String out_train, String out_test,
+			ArrayList<Edge> edges) {
+		int i = 0;
 		File trainFile = new File(out_train);
 		File testFile = new File(out_test);
 
@@ -229,13 +238,16 @@ public class GraphManager {
 		PrintWriter writerTest = null;
 
 		try {
-			writerTrain = new PrintWriter(new BufferedWriter(new FileWriter(out_train)));
-			writerTest = new PrintWriter(new BufferedWriter(new FileWriter(out_test)));
+			writerTrain = new PrintWriter(new BufferedWriter(new FileWriter(
+					out_train)));
+			writerTest = new PrintWriter(new BufferedWriter(new FileWriter(
+					out_test)));
 
-//			Map<Integer, HashSet<Integer>> vertexAndFollowees = _graph.getVertexAndFollowees();
-
+			// Map<Integer, HashSet<Integer>> vertexAndFollowees =
+			// _graph.getVertexAndFollowees();
 			for (Edge edge : edges) {
-
+				if (i++ == 20)
+					break;
 				Integer src_id = edge.getSourceId();
 
 				// If the source node appears as a FOLLOWER in the ORIGINAL
@@ -243,45 +255,62 @@ public class GraphManager {
 				// the former; create an EMPTY Measures object. Assumption: the
 				// FOLLOWERS in the ORIGINAL ADJACENCY LIST have been completely
 				// crawled.
-//				HashSet<Integer> followees = vertexAndFollowees.get(src_id);
-//
-//				if (followees != null && !followees.contains(edge.getDestinationId())) {
-//					writerTest.write(new Measures().toString() + ",?\n");
-//				} else {
+				// HashSet<Integer> followees = vertexAndFollowees.get(src_id);
+				//
+				// if (followees != null &&
+				// !followees.contains(edge.getDestinationId())) {
+				// writerTest.write(new Measures().toString() + ",?\n");
+				// } else {
 
-					// Calculate the page rank for the current source node. This
-					// is a map which contains the probabilities for this node
-					// and its neighbors.
-					Map<Integer, Double> initProbs = new HashMap<Integer, Double>();
-					initProbs.put(src_id, 1.0);
-					Map<Integer, Double> pageRankProbs = _graph.calcPageRank(src_id, initProbs, NUM_ITERATIONS);
+				// Calculate the page rank for the current source node. This
+				// is a map which contains the probabilities for this node
+				// and its neighbors.
 
-					// Get random POSITIVE edges for TRAINING SET, calculate
-					// their
-					// measures and write to the file.
-					Set<Integer> posDestIds = _graph.getRandomPositiveEdges(src_id, MAX);
-					for (Integer dest_id : posDestIds) {
-						Measures m = _graph.calculateMeasures(src_id, dest_id, pageRankProbs);
-						writerTrain.write(m.toString() + ",1\n");
-					}
+				Set<Integer> posDestIds = _graph.getRandomPositiveEdges(src_id,
+						MAX);
+				Set<Integer> negDestIds = _graph.getRandomNegativeEdges(src_id);
 
-					// Get random NEGATIVE edges for TRAINING SET, calculate
-					// their
-					// measures and write to the file.
-					Set<Integer> negDestIds = _graph.getRandomNegativeEdges(src_id);
-					if (negDestIds != null) {
-						for (Integer dest_id : negDestIds) {
-							Measures m = _graph.calculateMeasures(src_id, dest_id, pageRankProbs);
-							writerTrain.write(m.toString() + ",-1\n");
-						}
-					}
+				Map<Integer, Double> initProbs = new HashMap<Integer, Double>();
+				initProbs.put(src_id, 1.0);
 
-					// Calculate measures for TEST instances and write to the
-					// file.
-					Measures m = _graph.calculateMeasures(src_id, edge.getDestinationId(), pageRankProbs);
-					writerTest.write(m.toString() + ",?\n");
+				for (Integer node : posDestIds)
+					initProbs.put(node, 0.0);
+
+				for (Integer node : negDestIds)
+					initProbs.put(node, 0.0);
+
+				initProbs.put(edge.getDestinationId(), 0.0);
+
+				Map<Integer, Double> pageRankProbs = _graph.calcPageRank(
+						src_id, initProbs);
+
+				// Get random POSITIVE edges for TRAINING SET, calculate
+				// their
+				// measures and write to the file.
+				for (Integer dest_id : posDestIds) {
+					Measures m = _graph.calculateMeasures(src_id, dest_id,
+							pageRankProbs);
+					writerTrain.write(m.toString() + ",1\n");
 				}
-//			}
+
+				// Get random NEGATIVE edges for TRAINING SET, calculate
+				// their
+				// measures and write to the file.
+				if (negDestIds != null) {
+					for (Integer dest_id : negDestIds) {
+						Measures m = _graph.calculateMeasures(src_id, dest_id,
+								pageRankProbs);
+						writerTrain.write(m.toString() + ",-1\n");
+					}
+				}
+
+				// Calculate measures for TEST instances and write to the
+				// file.
+				Measures m = _graph.calculateMeasures(src_id,
+						edge.getDestinationId(), pageRankProbs);
+				writerTest.write(m.toString() + ",?\n");
+			}
+			// }
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

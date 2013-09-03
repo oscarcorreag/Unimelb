@@ -67,50 +67,90 @@ public class Graph {
 	 * @return A map of node -> probability of landing at that node after the
 	 *         specified number of iterations.
 	 */
-	public Map<Integer, Double> calcPageRank(Integer start_node, Map<Integer, Double> initProbs, int numIterations) {
+	public Map<Integer, Double> calcPageRank(Integer start_node,
+			Map<Integer, Double> initPageRankProbs) {
 
-		for (int i = numIterations; i > 0; i--) {
+		HashMap<Integer, Double> updated_probs = new HashMap<Integer, Double>();
+		updated_probs.put(start_node, 1 - PR_alpha);
 
-			HashMap<Integer, Double> updated_probs = new HashMap<Integer, Double>();
-			updated_probs.put(start_node, 1 - PR_alpha);
+		Integer node = start_node;
+		Double prob = 1.0;
+		HashSet<Integer> neighbours = new HashSet<Integer>();
+		boolean foll1 = _vertexAndFollowees.containsKey(node);
+		boolean foll2 = _vertexAndFollowers.containsKey(node);
+		if (!(foll1 || foll2))
+			return initPageRankProbs;
+		if (foll1)
+			neighbours.addAll(_vertexAndFollowees.get(node));
+		if (foll2)
+			neighbours.addAll(_vertexAndFollowers.get(node));
 
-			Double probToPropagate;
-			Double p;
-			for (Map.Entry<Integer, Double> entry : initProbs.entrySet()) {
-				Integer node = entry.getKey();
-				Double prob = entry.getValue();
-				HashSet<Integer> neighbours = new HashSet<Integer>();
-				boolean foll1 = _vertexAndFollowees.containsKey(node);
-				boolean foll2 = _vertexAndFollowers.containsKey(node);
-				if (!(foll1 || foll2))
-					continue;
-				if (foll1)
-					neighbours.addAll(_vertexAndFollowees.get(node));
-				if (foll2)
-					neighbours.addAll(_vertexAndFollowers.get(node));
+		int sz = neighbours.size();
+		Double probToPropagate;
 
-				int sz = neighbours.size();
-				if (sz > 10)
-					probToPropagate = (PR_alpha * prob) / Math.log(sz);
-				else
-					probToPropagate = PR_alpha * prob;
-				for (Integer neighbour : neighbours) {
+		if (sz > 10)
+			probToPropagate = (PR_alpha * prob) / Math.log(sz);
+		else
+			probToPropagate = PR_alpha * prob;
+		for (Integer neighbour : neighbours) {
+
+			updated_probs.put(neighbour, probToPropagate);
+		}
+
+		Map<Integer, Double> updatedPageRankProbs = calcPageRankSecondIter(
+				start_node, updated_probs, initPageRankProbs);
+
+		return updatedPageRankProbs;
+	}
+
+	public Map<Integer, Double> calcPageRankSecondIter(Integer start_node,
+			Map<Integer, Double> initProbs, Map<Integer, Double> pageRankProbs) {
+
+		pageRankProbs.put(start_node, 1 - PR_alpha);
+
+		Double probToPropagate;
+		Double p;
+		for (Map.Entry<Integer, Double> entry : initProbs.entrySet()) {
+			Integer node = entry.getKey();
+			Double prob = entry.getValue();
+			HashSet<Integer> neighbours = new HashSet<Integer>();
+			boolean foll1 = _vertexAndFollowees.containsKey(node);
+			boolean foll2 = _vertexAndFollowers.containsKey(node);
+			if (!(foll1 || foll2))
+				continue;
+			if (foll1)
+				neighbours.addAll(_vertexAndFollowees.get(node));
+			if (foll2)
+				neighbours.addAll(_vertexAndFollowers.get(node));
+			/*
+			 * else{ for (Integer v : pageRankProbs.keySet()){ if (
+			 * _vertexAndFollowees.get(v).contains(node)) neighbours.add(node);
+			 * } }
+			 */
+			int sz = neighbours.size();
+			if (sz > 10)
+				probToPropagate = (PR_alpha * prob) / Math.log(sz);
+			else
+				probToPropagate = PR_alpha * prob;
+			for (Integer neighbour : neighbours) {
+
+				if (pageRankProbs.containsKey(neighbour)) {
 					if (initProbs.containsKey(neighbour))
 						p = initProbs.get(neighbour);
 					else
 						p = 0.0;
 
-					updated_probs.put(neighbour, p + probToPropagate);
+					pageRankProbs.put(neighbour, p + probToPropagate);
 				}
+				
 			}
-
-			initProbs = updated_probs;
-			// numIterations--;
 		}
-		return initProbs;
+
+		return pageRankProbs;
 	}
 
-	public Measures calculateMeasures(Integer v1, Integer v2, Map<Integer, Double> pr_probs) {
+	public Measures calculateMeasures(Integer v1, Integer v2,
+			Map<Integer, Double> pr_probs) {
 
 		Measures m = new Measures();
 
@@ -149,10 +189,12 @@ public class Graph {
 				m.setAdamicAdarFollowees(1 / (Math.log(intersectionFollowees)));
 
 			if (followees_u.size() > 0)
-				m.setJaccardFollowees(intersectionFollowees / followees_u.size());
+				m.setJaccardFollowees(intersectionFollowees
+						/ followees_u.size());
 
 			if (followees_v1.size() > 0 && followees_v2.size() > 0)
-				m.setCosineFollowees(intersectionFollowees / Math.sqrt(followees_v1.size() * followees_v2.size()));
+				m.setCosineFollowees(intersectionFollowees
+						/ Math.sqrt(followees_v1.size() * followees_v2.size()));
 		}
 
 		if (followers_v1 != null && followers_v2 != null) {
@@ -170,10 +212,12 @@ public class Graph {
 				m.setAdamicAdarFollowers(1 / (Math.log(intersectionFollowers)));
 
 			if (followers_u.size() > 0)
-				m.setJaccardFollowers(intersectionFollowers / followers_u.size());
+				m.setJaccardFollowers(intersectionFollowers
+						/ followers_u.size());
 
 			if (followers_v1.size() > 0 && followers_v2.size() > 0)
-				m.setCosineFollowers(intersectionFollowers / Math.sqrt(followers_v1.size() * followers_v2.size()));
+				m.setCosineFollowers(intersectionFollowers
+						/ Math.sqrt(followers_v1.size() * followers_v2.size()));
 		}
 
 		if (pr_probs.containsKey(v2))
