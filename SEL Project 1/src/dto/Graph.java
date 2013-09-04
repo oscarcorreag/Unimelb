@@ -9,6 +9,8 @@ public class Graph {
 
 	private static final double PR_alpha = 0.5;
 
+	private static final int NUM_ITERATIONS_PR = 3;
+
 	Map<Integer, HashSet<Integer>> _vertexAndFollowees;
 	Map<Integer, HashSet<Integer>> _vertexAndFollowers;
 
@@ -67,44 +69,51 @@ public class Graph {
 	 * @return A map of node -> probability of landing at that node after the
 	 *         specified number of iterations.
 	 */
-	public Map<Integer, Double> calcPageRank(Integer start_node,
-			Map<Integer, Double> initPageRankProbs) {
-
+	public Map<Integer, Double> calcPageRank(Integer start_node, Map<Integer, Double> initProbs, Map<Integer, Double> initPageRankProbs) {
+    
+		for (int i  = NUM_ITERATIONS_PR; i > 1 ; i--){
 		HashMap<Integer, Double> updated_probs = new HashMap<Integer, Double>();
 		updated_probs.put(start_node, 1 - PR_alpha);
-
-		Integer node = start_node;
-		Double prob = 1.0;
-		HashSet<Integer> neighbours = new HashSet<Integer>();
-		boolean foll1 = _vertexAndFollowees.containsKey(node);
-		boolean foll2 = _vertexAndFollowers.containsKey(node);
-		if (!(foll1 || foll2))
-			return initPageRankProbs;
-		if (foll1)
-			neighbours.addAll(_vertexAndFollowees.get(node));
-		if (foll2)
-			neighbours.addAll(_vertexAndFollowers.get(node));
-
-		int sz = neighbours.size();
 		Double probToPropagate;
+		Double p;
 
-		if (sz > 10)
-			probToPropagate = (PR_alpha * prob) / Math.log(sz);
-		else
-			probToPropagate = PR_alpha * prob;
-		for (Integer neighbour : neighbours) {
+		for (Map.Entry<Integer, Double> entry : initProbs.entrySet()) {
+			Integer node = entry.getKey();
+			Double prob = entry.getValue();
+			HashSet<Integer> neighbours = new HashSet<Integer>();
+			boolean foll1 = _vertexAndFollowees.containsKey(node);
+			boolean foll2 = _vertexAndFollowers.containsKey(node);
+			if (!(foll1 || foll2))
+				continue;
+			if (foll1)
+				neighbours.addAll(_vertexAndFollowees.get(node));
+			if (foll2)
+				neighbours.addAll(_vertexAndFollowers.get(node));
 
-			updated_probs.put(neighbour, probToPropagate);
+			int sz = neighbours.size();
+
+			if (sz > 10)
+				probToPropagate = (PR_alpha * prob) / Math.log(sz);
+			else
+				probToPropagate = PR_alpha * prob;
+			for (Integer neighbour : neighbours) {
+				if (initProbs.containsKey(neighbour))
+					p = initProbs.get(neighbour);
+				else
+					p = 0.0;
+				updated_probs.put(neighbour, probToPropagate);
+			}
+
 		}
-
-		Map<Integer, Double> updatedPageRankProbs = calcPageRankSecondIter(
-				start_node, updated_probs, initPageRankProbs);
+        initProbs = updated_probs;
+		
+	}
+		Map<Integer, Double> updatedPageRankProbs = calcPageRankLastIter(start_node, initProbs, initPageRankProbs);
 
 		return updatedPageRankProbs;
 	}
 
-	public Map<Integer, Double> calcPageRankSecondIter(Integer start_node,
-			Map<Integer, Double> initProbs, Map<Integer, Double> pageRankProbs) {
+	public Map<Integer, Double> calcPageRankLastIter(Integer start_node, Map<Integer, Double> initProbs, Map<Integer, Double> pageRankProbs) {
 
 		pageRankProbs.put(start_node, 1 - PR_alpha);
 
@@ -142,15 +151,14 @@ public class Graph {
 
 					pageRankProbs.put(neighbour, p + probToPropagate);
 				}
-				
+
 			}
 		}
 
 		return pageRankProbs;
 	}
 
-	public Measures calculateMeasures(Integer v1, Integer v2,
-			Map<Integer, Double> pr_probs) {
+	public Measures calculateMeasures(Integer v1, Integer v2, Map<Integer, Double> pr_probs) {
 
 		Measures m = new Measures();
 
@@ -177,10 +185,10 @@ public class Graph {
 		if (followees_v1 != null && followees_v2 != null) {
 
 			HashSet<Integer> followees_i = new HashSet<Integer>(followees_v2);
-			HashSet<Integer> followees_u = new HashSet<Integer>(followees_v2);
+//			HashSet<Integer> followees_u = new HashSet<Integer>(followees_v2);
 
 			followees_i.retainAll(followees_v1);
-			followees_u.addAll(followees_v1);
+//			followees_u.addAll(followees_v1);
 
 			int intersectionFollowees = followees_i.size();
 
@@ -188,22 +196,20 @@ public class Graph {
 			if (intersectionFollowees != 0)
 				m.setAdamicAdarFollowees(1 / (Math.log(intersectionFollowees)));
 
-			if (followees_u.size() > 0)
-				m.setJaccardFollowees(intersectionFollowees
-						/ followees_u.size());
+//			if (followees_u.size() > 0)
+//				m.setJaccardFollowees(intersectionFollowees / followees_u.size());
 
 			if (followees_v1.size() > 0 && followees_v2.size() > 0)
-				m.setCosineFollowees(intersectionFollowees
-						/ Math.sqrt(followees_v1.size() * followees_v2.size()));
+				m.setCosineFollowees(intersectionFollowees / Math.sqrt(followees_v1.size() * followees_v2.size()));
 		}
 
 		if (followers_v1 != null && followers_v2 != null) {
 
 			HashSet<Integer> followers_i = new HashSet<Integer>(followers_v2);
-			HashSet<Integer> followers_u = new HashSet<Integer>(followers_v2);
+//			HashSet<Integer> followers_u = new HashSet<Integer>(followers_v2);
 
 			followers_i.retainAll(followers_v1);
-			followers_u.addAll(followers_v1);
+//			followers_u.addAll(followers_v1);
 
 			int intersectionFollowers = followers_i.size();
 
@@ -211,13 +217,11 @@ public class Graph {
 			if (intersectionFollowers != 0)
 				m.setAdamicAdarFollowers(1 / (Math.log(intersectionFollowers)));
 
-			if (followers_u.size() > 0)
-				m.setJaccardFollowers(intersectionFollowers
-						/ followers_u.size());
+//			if (followers_u.size() > 0)
+//				m.setJaccardFollowers(intersectionFollowers / followers_u.size());
 
 			if (followers_v1.size() > 0 && followers_v2.size() > 0)
-				m.setCosineFollowers(intersectionFollowers
-						/ Math.sqrt(followers_v1.size() * followers_v2.size()));
+				m.setCosineFollowers(intersectionFollowers / Math.sqrt(followers_v1.size() * followers_v2.size()));
 		}
 
 		if (pr_probs.containsKey(v2))

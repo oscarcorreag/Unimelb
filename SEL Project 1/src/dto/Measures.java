@@ -5,12 +5,12 @@ public class Measures {
 	private int mutual;
 
 	private double intersectionFollowees;
-	private double jaccardFollowees;
+	// private double jaccardFollowees;
 	private double cosineFollowees;
 	private double adamicAdarFollowees;
 
 	private double intersectionFollowers;
-	private double jaccardFollowers;
+	// private double jaccardFollowers;
 	private double cosineFollowers;
 	private double adamicAdarFollowers;
 
@@ -24,18 +24,18 @@ public class Measures {
 
 	private double pageRank = 0.0;
 
-//	private final double MIN_CUT_OFF = 0.0000001;
+	// private final double MIN_CUT_OFF = 0.0000001;
 
 	public Measures() {
 
 		mutual = 0;
 
 		intersectionFollowees = 0.0;
-		jaccardFollowees = 0.0;
+		// jaccardFollowees = 0.0;
 		cosineFollowees = 0.0;
 
 		intersectionFollowers = 0.0;
-		jaccardFollowers = 0.0;
+		// jaccardFollowers = 0.0;
 		cosineFollowers = 0.0;
 
 		numFolloweesSrc = 0;
@@ -55,37 +55,36 @@ public class Measures {
 		return intersectionFollowees;
 	}
 
-	public double getJaccardFollowees() {
-		// return jaccardFollowees > MIN_CUT_OFF ? jaccardFollowees : 0.0;
-		return jaccardFollowees;
-	}
+	// public double getJaccardFollowees() {
+	// // return jaccardFollowees > MIN_CUT_OFF ? jaccardFollowees : 0.0;
+	// return jaccardFollowees;
+	// }
 
 	public double getCosineFollowees() {
 		// return cosineFollowees > MIN_CUT_OFF ? cosineFollowees : 0.0;
 		return cosineFollowees;
 	}
-	
+
 	public double getAdamicAdarFollowees() {
- 		return adamicAdarFollowees;
+		return adamicAdarFollowees;
 	}
 
 	public double getIntersectionFollowers() {
 		return intersectionFollowers;
 	}
 
-	public double getJaccardFollowers() {
-		// return jaccardFollowers > MIN_CUT_OFF ? jaccardFollowers : 0.0;
-		return jaccardFollowers;
-	}
+	// public double getJaccardFollowers() {
+	// // return jaccardFollowers > MIN_CUT_OFF ? jaccardFollowers : 0.0;
+	// return jaccardFollowers;
+	// }
 
 	public double getCosineFollowers() {
 		// return cosineFollowers > MIN_CUT_OFF ? cosineFollowers : 0.0;
 		return cosineFollowers;
 	}
 
-	
 	public double getAdamicAdarFollowers() {
- 		return adamicAdarFollowers;
+		return adamicAdarFollowers;
 	}
 
 	public int getNumFolloweesSrc() {
@@ -124,14 +123,14 @@ public class Measures {
 		this.intersectionFollowees = intersectionFollowees;
 	}
 
-	public void setJaccardFollowees(double jaccardFollowees) {
-		this.jaccardFollowees = jaccardFollowees;
-	}
+	// public void setJaccardFollowees(double jaccardFollowees) {
+	// this.jaccardFollowees = jaccardFollowees;
+	// }
 
 	public void setCosineFollowees(double cosineFollowees) {
 		this.cosineFollowees = cosineFollowees;
 	}
-	
+
 	public void setAdamicAdarFollowees(double adamicAdarFollowees) {
 		this.adamicAdarFollowees = adamicAdarFollowees;
 	}
@@ -140,13 +139,14 @@ public class Measures {
 		this.intersectionFollowers = intersectionFollowers;
 	}
 
-	public void setJaccardFollowers(double jaccardFollowers) {
-		this.jaccardFollowers = jaccardFollowers;
-	}
+	// public void setJaccardFollowers(double jaccardFollowers) {
+	// this.jaccardFollowers = jaccardFollowers;
+	// }
 
 	public void setCosineFollowers(double cosineFollowers) {
 		this.cosineFollowers = cosineFollowers;
 	}
+
 	public void setAdamicAdarFollowers(double adamicAdarFollowers) {
 		this.adamicAdarFollowers = adamicAdarFollowers;
 	}
@@ -185,9 +185,9 @@ public class Measures {
 		// + "," + getNumFolloweesDes() + "," + getNumFollowersSrc() + "," +
 		// getNumFollowersDes();
 
-		return getPageRank() + "," + getMutual() + "," + (int) getIntersectionFollowees() + "," + getJaccardFollowees() + "," + getCosineFollowees() + ","
-				+ (int) getIntersectionFollowers() + "," + getJaccardFollowers() + "," + getCosineFollowers() + "," + getNumFolloweesSrc() + ","
-				+ getNumFolloweesDes() + "," + getNumFollowersSrc() + "," + getNumFollowersDes();
+		return getPageRank() + "," + getMutual() + "," + (int) getIntersectionFollowees() + "," + getCosineFollowees() + ","
+				+ getAdamicAdarFollowees() + "," + (int) getIntersectionFollowers() + "," + getCosineFollowers() + "," + getAdamicAdarFollowers()
+				+ "," + getNumFolloweesSrc() + "," + getNumFolloweesDes() + "," + getNumFollowersSrc() + "," + getNumFollowersDes();
 	}
 
 	public double getPageRank() {
