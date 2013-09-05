@@ -140,8 +140,8 @@ public class Graph {
 				else
 					probToPropagate = PR_alpha * prob;
 				for (Integer neighbour : neighbours) {
-					if (initProbs.containsKey(neighbour))
-						p = initProbs.get(neighbour);
+					if (updated_probs.containsKey(neighbour))
+						p = updated_probs.get(neighbour);
 					else
 						p = 0.0;
 
@@ -189,10 +189,7 @@ public class Graph {
 			for (Integer neighbour : neighbours) {
 
 				if (pageRankProbs.containsKey(neighbour)) {
-					if (initProbs.containsKey(neighbour))
-						p = initProbs.get(neighbour);
-					else
-						p = 0.0;
+					p = pageRankProbs.get(neighbour);
 
 					pageRankProbs.put(neighbour, p + probToPropagate);
 				}
@@ -202,8 +199,9 @@ public class Graph {
 
 		return pageRankProbs;
 	}
-	
-//	public Measures calculateMeasures(Integer v1, Integer v2, Map<Integer, Double> pr_probs) {
+
+	// public Measures calculateMeasures(Integer v1, Integer v2, Map<Integer,
+	// Double> pr_probs) {
 	public Measures calculateMeasures(Integer v1, Integer v2) {
 
 		Measures m = new Measures();
@@ -240,8 +238,8 @@ public class Graph {
 			int intersectionFollowees = followees_i.size();
 
 			m.setIntersectionFollowees(intersectionFollowees);
-			
-//			if (intersectionFollowees != 0)
+
+			// if (intersectionFollowees != 0)
 			if (intersectionFollowees > 1)
 				m.setAdamicAdarFollowees(1 / (Math.log(intersectionFollowees)));
 
@@ -265,8 +263,8 @@ public class Graph {
 			int intersectionFollowers = followers_i.size();
 
 			m.setIntersectionFollowers(intersectionFollowers);
-			
-//			if (intersectionFollowers != 0)
+
+			// if (intersectionFollowers != 0)
 			if (intersectionFollowers > 1)
 				m.setAdamicAdarFollowers(1 / (Math.log(intersectionFollowers)));
 
@@ -278,8 +276,8 @@ public class Graph {
 				m.setCosineFollowers(intersectionFollowers / Math.sqrt(followers_v1.size() * followers_v2.size()));
 		}
 
-//		if (pr_probs.containsKey(v2))
-//			m.setPageRank(pr_probs.get(v2));
+		// if (pr_probs.containsKey(v2))
+		// m.setPageRank(pr_probs.get(v2));
 
 		return m;
 	}
@@ -311,7 +309,7 @@ public class Graph {
 		Object[] all_dest_ids = getFollowees(src_id).toArray();
 		HashSet<Integer> dest_ids = new HashSet<Integer>();
 
-//		int i = 0;
+		// int i = 0;
 
 		if (all_dest_ids != null) {
 
@@ -319,19 +317,19 @@ public class Graph {
 
 			for (int j = 0; j < max; j++) {
 				int item = new Random().nextInt(size);
-				dest_ids.add((Integer)all_dest_ids[item]);
+				dest_ids.add((Integer) all_dest_ids[item]);
 			}
 
-//			for (Integer dest_id : all_dest_ids) {
-//
-//				if (i > max)
-//					break;
-//
-//				if (getFollowees(dest_id) == null)
-//					continue;
-//				dest_ids.add(dest_id);
-//				i++;
-//			}
+			// for (Integer dest_id : all_dest_ids) {
+			//
+			// if (i > max)
+			// break;
+			//
+			// if (getFollowees(dest_id) == null)
+			// continue;
+			// dest_ids.add(dest_id);
+			// i++;
+			// }
 		}
 
 		return dest_ids;
