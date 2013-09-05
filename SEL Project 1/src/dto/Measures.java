@@ -185,9 +185,13 @@ public class Measures {
 		// + "," + getNumFolloweesDes() + "," + getNumFollowersSrc() + "," +
 		// getNumFollowersDes();
 
-		return getPageRank() + "," + getMutual() + "," + (int) getIntersectionFollowees() + "," + getCosineFollowees() + ","
-				+ getAdamicAdarFollowees() + "," + (int) getIntersectionFollowers() + "," + getCosineFollowers() + "," + getAdamicAdarFollowers()
-				+ "," + getNumFolloweesSrc() + "," + getNumFolloweesDes() + "," + getNumFollowersSrc() + "," + getNumFollowersDes();
+//		return getPageRank() + "," + getMutual() + "," + (int) getIntersectionFollowees() + "," + getCosineFollowees() + ","
+//				+ getAdamicAdarFollowees() + "," + (int) getIntersectionFollowers() + "," + getCosineFollowers() + "," + getAdamicAdarFollowers()
+//				+ "," + getNumFolloweesSrc() + "," + getNumFolloweesDes() + "," + getNumFollowersSrc() + "," + getNumFollowersDes();
+		
+		return getMutual() + "," + (int) getIntersectionFollowees() + "," + getCosineFollowees() + ","
+		+ getAdamicAdarFollowees() + "," + (int) getIntersectionFollowers() + "," + getCosineFollowers() + "," + getAdamicAdarFollowers()
+		+ "," + getNumFolloweesSrc() + "," + getNumFolloweesDes() + "," + getNumFollowersSrc() + "," + getNumFollowersDes();
 	}
 
 	public double getPageRank() {

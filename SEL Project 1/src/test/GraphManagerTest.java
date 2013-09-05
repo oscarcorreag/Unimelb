@@ -26,10 +26,16 @@ public class GraphManagerTest {
 
 		HashSet<Integer> vertices_set = g.readTestVertices("test_" + dataset + ".txt");
 		g.readTrainGraphFromFile(vertices_set, "train_" + dataset + "_mod.txt");
-		System.out.println("done reading g : " );
+//		System.out.println("done reading g : " );
 
-		ArrayList<Edge> edges = g.getTestEdges("test_" + dataset + "_1001_1500.txt");
-		g.writeFiles("out_train.txt", "out_test.txt", edges);
+//		ArrayList<Edge> edges = g.getTestEdges("test_" + dataset + "_1_1000_1501_2000.txt");
+//		g.writeFiles("out_train.txt", "out_test.txt", edges);
+		
+		
+		g.createFileWithMeasures("out_train_instances_added.txt");
+//		g.createFileWithMeasures("out_test.txt");
+		
+		
 //		HashMap<Integer, Double> initProbs  = new HashMap<Integer, Double> ();
 ////int src = 2685339;
 //int src = 355230;

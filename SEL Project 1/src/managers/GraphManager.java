@@ -86,8 +86,7 @@ public class GraphManager {
 	 * @param in_file
 	 *            Name of the file which contains the adjacency list.
 	 */
-	public void readTrainGraphFromFile(HashSet<Integer> test_vertices,
-			String in_file) {
+	public void readTrainGraphFromFile(HashSet<Integer> test_vertices, String in_file) {
 
 		try {
 			FileInputStream fstream = new FileInputStream(in_file);
@@ -116,20 +115,16 @@ public class GraphManager {
 
 			// Get the graph structure just created above in order to create the
 			// the NEGATIVE and INVERTED ADJACENCY LISTS.
-			Map<Integer, HashSet<Integer>> vertexAndFollowees = _graph
-					.getVertexAndFollowees();
-			List<Integer> followersKeys = new ArrayList<Integer>(
-					vertexAndFollowees.keySet());
+			Map<Integer, HashSet<Integer>> vertexAndFollowees = _graph.getVertexAndFollowees();
+			List<Integer> followersKeys = new ArrayList<Integer>(vertexAndFollowees.keySet());
 
 			Random random = new Random();
 
-			Iterator<Entry<Integer, HashSet<Integer>>> it = vertexAndFollowees
-					.entrySet().iterator();
+			Iterator<Entry<Integer, HashSet<Integer>>> it = vertexAndFollowees.entrySet().iterator();
 
 			while (it.hasNext()) {
 
-				Map.Entry<Integer, HashSet<Integer>> vAndF = (Map.Entry<Integer, HashSet<Integer>>) it
-						.next();
+				Map.Entry<Integer, HashSet<Integer>> vAndF = (Map.Entry<Integer, HashSet<Integer>>) it.next();
 
 				// Get the follower and followings.
 				Integer follower = vAndF.getKey();
@@ -144,8 +139,7 @@ public class GraphManager {
 				HashSet<Integer> notFollowees = new HashSet<Integer>();
 
 				for (int i = 0; i < MAX; i++) {
-					Integer randomKey = followersKeys.get(random
-							.nextInt(followersKeys.size()));
+					Integer randomKey = followersKeys.get(random.nextInt(followersKeys.size()));
 
 					if (follower != randomKey && !followees.contains(randomKey)) {
 						notFollowees.add(randomKey);
@@ -159,8 +153,7 @@ public class GraphManager {
 				// ALL FOLLOWEES are included, only those which FOLLOW someone
 				// or ARE PRESENT in the TEST set.
 				for (Integer followee : followees)
-					if (vertexAndFollowees.containsKey(followee)
-							|| test_vertices.contains(followee))
+					if (vertexAndFollowees.containsKey(followee) || test_vertices.contains(followee))
 						_graph.addVertexAndFollower(followee, follower);
 			}
 
@@ -216,8 +209,7 @@ public class GraphManager {
 	 * @param out_test
 	 * @param edges
 	 */
-	public void writeFiles(String out_train, String out_test,
-			ArrayList<Edge> edges) {
+	public void writeFiles(String out_train, String out_test, ArrayList<Edge> edges) {
 
 		File trainFile = new File(out_train);
 		File testFile = new File(out_test);
@@ -240,19 +232,17 @@ public class GraphManager {
 		long t0 = System.currentTimeMillis();
 		int counter = 0;
 		try {
-			writerTrain = new PrintWriter(new BufferedWriter(new FileWriter(
-					out_train)));
-			writerTest = new PrintWriter(new BufferedWriter(new FileWriter(
-					out_test)));
+			writerTrain = new PrintWriter(new BufferedWriter(new FileWriter(out_train)));
+			writerTest = new PrintWriter(new BufferedWriter(new FileWriter(out_test)));
 
 			// Map<Integer, HashSet<Integer>> vertexAndFollowees =
 			// _graph.getVertexAndFollowees();
 			for (Edge edge : edges) {
-				
+
 				if (counter++ % 200 == 0) {
 					System.out.println(System.currentTimeMillis() - t0);
 				}
-				
+
 				Integer src_id = edge.getSourceId();
 
 				// If the source node appears as a FOLLOWER in the ORIGINAL
@@ -271,8 +261,7 @@ public class GraphManager {
 				// is a map which contains the probabilities for this node
 				// and its neighbors.
 
-				Set<Integer> posDestIds = _graph.getRandomPositiveEdges(src_id,
-						MAX);
+				Set<Integer> posDestIds = _graph.getRandomPositiveEdges(src_id, MAX);
 				Set<Integer> negDestIds = _graph.getRandomNegativeEdges(src_id);
 				Map<Integer, Double> initPR = new HashMap<Integer, Double>();
 				initPR.put(src_id, 1.0);
@@ -290,8 +279,7 @@ public class GraphManager {
 				int test_dest = edge.getDestinationId();
 				initProbs.put(test_dest, 0.0);
 
-				Map<Integer, Double> pageRankProbs = _graph.calcPageRank(
-						src_id, initPR, initProbs);
+				Map<Integer, Double> pageRankProbs = _graph.calcPageRank(src_id, initPR, initProbs);
 
 				// Get random POSITIVE edges for TRAINING SET, calculate
 				// their
@@ -300,8 +288,7 @@ public class GraphManager {
 					// Measures m = _graph.calculateMeasures(src_id, dest_id,
 					// pageRankProbs);
 					// writerTrain.write(m.toString() + ",1\n");
-					writerTrain.write(src_id + "," + dest_id + ","
-							+ pageRankProbs.get(dest_id) + ",1\n");
+					writerTrain.write(src_id + "," + dest_id + "," + pageRankProbs.get(dest_id) + ",1\n");
 				}
 
 				// Get random NEGATIVE edges for TRAINING SET, calculate
@@ -312,8 +299,7 @@ public class GraphManager {
 						// Measures m = _graph.calculateMeasures(src_id,
 						// dest_id, pageRankProbs);
 						// writerTrain.write(m.toString() + ",-1\n");
-						writerTrain.write(src_id + "," + dest_id + ","
-								+ pageRankProbs.get(dest_id) + ",-1\n");
+						writerTrain.write(src_id + "," + dest_id + "," + pageRankProbs.get(dest_id) + ",-1\n");
 					}
 				}
 				// Calculate measures for TEST instances and write to the
@@ -321,8 +307,7 @@ public class GraphManager {
 				// Measures m = _graph.calculateMeasures(src_id,
 				// edge.getDestinationId(), pageRankProbs);
 				// writerTest.write(m.toString() + ",?\n");
-				writerTest.write(src_id + "," + test_dest + ","
-						+ pageRankProbs.get(test_dest) + ",?\n");
+				writerTest.write(src_id + "," + test_dest + "," + pageRankProbs.get(test_dest) + ",?\n");
 
 			}
 			// }
@@ -338,6 +323,41 @@ public class GraphManager {
 		} finally {
 			writerTrain.close();
 			writerTest.close();
+		}
+	}
+
+	public void createFileWithMeasures(String originalName) {
+
+		try {
+			PrintWriter pw = null;
+
+			pw = new PrintWriter(new BufferedWriter(new FileWriter(originalName + ".csv")));
+
+			FileInputStream fs = new FileInputStream(originalName);
+			DataInputStream in = new DataInputStream(fs);
+			BufferedReader br = new BufferedReader(new InputStreamReader(in));
+
+			String strLine;
+
+			while ((strLine = br.readLine()) != null) {
+
+				String[] ids = strLine.split(",");
+
+				Integer srcId = Integer.valueOf(ids[0]);
+				Integer desId = Integer.valueOf(ids[1]);
+				String pageRank = ids[2];
+				String cls = ids[3];
+
+				Measures m = _graph.calculateMeasures(srcId, desId);
+
+				pw.write(pageRank + "," + m.toString() + "," + cls + "\n");
+			}
+			
+			in.close();
+			pw.close();
+			
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 	}
 

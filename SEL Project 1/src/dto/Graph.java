@@ -202,8 +202,9 @@ public class Graph {
 
 		return pageRankProbs;
 	}
-
-	public Measures calculateMeasures(Integer v1, Integer v2, Map<Integer, Double> pr_probs) {
+	
+//	public Measures calculateMeasures(Integer v1, Integer v2, Map<Integer, Double> pr_probs) {
+	public Measures calculateMeasures(Integer v1, Integer v2) {
 
 		Measures m = new Measures();
 
@@ -239,7 +240,9 @@ public class Graph {
 			int intersectionFollowees = followees_i.size();
 
 			m.setIntersectionFollowees(intersectionFollowees);
-			if (intersectionFollowees != 0)
+			
+//			if (intersectionFollowees != 0)
+			if (intersectionFollowees > 1)
 				m.setAdamicAdarFollowees(1 / (Math.log(intersectionFollowees)));
 
 			// if (followees_u.size() > 0)
@@ -262,7 +265,9 @@ public class Graph {
 			int intersectionFollowers = followers_i.size();
 
 			m.setIntersectionFollowers(intersectionFollowers);
-			if (intersectionFollowers != 0)
+			
+//			if (intersectionFollowers != 0)
+			if (intersectionFollowers > 1)
 				m.setAdamicAdarFollowers(1 / (Math.log(intersectionFollowers)));
 
 			// if (followers_u.size() > 0)
@@ -273,8 +278,8 @@ public class Graph {
 				m.setCosineFollowers(intersectionFollowers / Math.sqrt(followers_v1.size() * followers_v2.size()));
 		}
 
-		if (pr_probs.containsKey(v2))
-			m.setPageRank(pr_probs.get(v2));
+//		if (pr_probs.containsKey(v2))
+//			m.setPageRank(pr_probs.get(v2));
 
 		return m;
 	}
