@@ -135,7 +135,7 @@ public class Graph {
 					neighbours.addAll(_vertexAndFollowers.get(node));
 
 				int sz = neighbours.size();
-				if (sz > 10)
+				if (sz > 2)
 					probToPropagate = (PR_alpha * prob) / Math.log(sz);
 				else
 					probToPropagate = PR_alpha * prob;
@@ -278,6 +278,14 @@ public class Graph {
 
 		// if (pr_probs.containsKey(v2))
 		// m.setPageRank(pr_probs.get(v2));
+		
+		
+		
+		
+		
+		
+		
+		
 
 		return m;
 	}

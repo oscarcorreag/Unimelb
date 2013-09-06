@@ -18,7 +18,9 @@ public class Measures {
 	private int numFolloweesDes = 0;
 	private int numFollowersSrc = 0;
 	private int numFollowersDes = 0;
-
+		
+	private double jacFollowerBasedToFollowees = 0.0;
+	
 	private double jaccardFolloweesFollowers;
 	private double jaccardFollowersFollowees;
 
@@ -185,13 +187,16 @@ public class Measures {
 		// + "," + getNumFolloweesDes() + "," + getNumFollowersSrc() + "," +
 		// getNumFollowersDes();
 
-//		return getPageRank() + "," + getMutual() + "," + (int) getIntersectionFollowees() + "," + getCosineFollowees() + ","
-//				+ getAdamicAdarFollowees() + "," + (int) getIntersectionFollowers() + "," + getCosineFollowers() + "," + getAdamicAdarFollowers()
-//				+ "," + getNumFolloweesSrc() + "," + getNumFolloweesDes() + "," + getNumFollowersSrc() + "," + getNumFollowersDes();
-		
-		return getMutual() + "," + (int) getIntersectionFollowees() + "," + getCosineFollowees() + ","
-		+ getAdamicAdarFollowees() + "," + (int) getIntersectionFollowers() + "," + getCosineFollowers() + "," + getAdamicAdarFollowers()
-		+ "," + getNumFolloweesSrc() + "," + getNumFolloweesDes() + "," + getNumFollowersSrc() + "," + getNumFollowersDes();
+		// return getPageRank() + "," + getMutual() + "," + (int)
+		// getIntersectionFollowees() + "," + getCosineFollowees() + ","
+		// + getAdamicAdarFollowees() + "," + (int) getIntersectionFollowers() +
+		// "," + getCosineFollowers() + "," + getAdamicAdarFollowers()
+		// + "," + getNumFolloweesSrc() + "," + getNumFolloweesDes() + "," +
+		// getNumFollowersSrc() + "," + getNumFollowersDes();
+
+		return getMutual() + "," + (int) getIntersectionFollowees() + "," + getCosineFollowees() + "," + getAdamicAdarFollowees() + ","
+				+ (int) getIntersectionFollowers() + "," + getCosineFollowers() + "," + getAdamicAdarFollowers() + "," + getNumFolloweesSrc() + ","
+				+ getNumFolloweesDes() + "," + getNumFollowersSrc() + "," + getNumFollowersDes();
 	}
 
 	public double getPageRank() {
@@ -201,4 +206,17 @@ public class Measures {
 	public void setPageRank(double pageRank) {
 		this.pageRank = pageRank;
 	}
+
+	public double getJacFollowerBasedToFollowees() {
+		return jacFollowerBasedToFollowees;
+	}
+
+	public void setJacFollowerBasedToFollowees(double jacFollowerBasedToFollowees) {
+		this.jacFollowerBasedToFollowees = jacFollowerBasedToFollowees;
+	}
+	
+	
+	
+	
+	
 }

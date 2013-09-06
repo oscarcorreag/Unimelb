@@ -24,15 +24,14 @@ public class GraphManagerTest {
         String dataset = "final";
 		GraphManager g = new GraphManager();
 
-		HashSet<Integer> vertices_set = g.readTestVertices("test_" + dataset + ".txt");
-		g.readTrainGraphFromFile(vertices_set, "train_" + dataset + "_mod.txt");
-//		System.out.println("done reading g : " );
+//		HashSet<Integer> vertices_set = g.readTestVertices("test_" + dataset + ".txt");
+		ArrayList<Edge> edges0 = g.getTestEdges("test_" + dataset + ".txt");
+		g.readTrainGraphFromFile(edges0, "train_" + dataset + "_mod.txt");
 
-//		ArrayList<Edge> edges = g.getTestEdges("test_" + dataset + "_1_1000_1501_2000.txt");
+//		ArrayList<Edge> edges = g.getTestEdges("test_" + dataset + "_from_678_1200.txt");
 //		g.writeFiles("out_train.txt", "out_test.txt", edges);
-		
-		
-		g.createFileWithMeasures("out_train_instances_added.txt");
+				
+//		g.createFileWithMeasures("out_train.txt");
 //		g.createFileWithMeasures("out_test.txt");
 		
 		

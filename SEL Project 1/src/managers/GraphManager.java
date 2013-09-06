@@ -15,7 +15,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Random;
@@ -86,7 +85,7 @@ public class GraphManager {
 	 * @param in_file
 	 *            Name of the file which contains the adjacency list.
 	 */
-	public void readTrainGraphFromFile(HashSet<Integer> test_vertices, String in_file) {
+	public void readTrainGraphFromFile(ArrayList<Edge> edges, String in_file) {
 
 		try {
 			FileInputStream fstream = new FileInputStream(in_file);
@@ -113,10 +112,21 @@ public class GraphManager {
 			}
 			in.close();
 
+			
+			HashSet<Integer> test_vertices = new HashSet<Integer>();
+			for (Edge edge : edges) {
+				test_vertices.add(edge.getSourceId());
+				test_vertices.add(edge.getDestinationId());
+			}
+			
+			
+			
+			
 			// Get the graph structure just created above in order to create the
 			// the NEGATIVE and INVERTED ADJACENCY LISTS.
 			Map<Integer, HashSet<Integer>> vertexAndFollowees = _graph.getVertexAndFollowees();
-			List<Integer> followersKeys = new ArrayList<Integer>(vertexAndFollowees.keySet());
+			// List<Integer> followersKeys = new
+			// ArrayList<Integer>(vertexAndFollowees.keySet());
 
 			Random random = new Random();
 
@@ -138,11 +148,15 @@ public class GraphManager {
 				// by a constant.
 				HashSet<Integer> notFollowees = new HashSet<Integer>();
 
-				for (int i = 0; i < MAX; i++) {
-					Integer randomKey = followersKeys.get(random.nextInt(followersKeys.size()));
+				for (int i = 0; i < MAX ;) {
+					// Integer randomKey =
+					// followersKeys.get(random.nextInt(followersKeys.size()));
+					Edge randomEdge = edges.get(random.nextInt(edges.size()));
+					Integer randomKey = randomEdge.getDestinationId();
 
-					if (follower != randomKey && !followees.contains(randomKey)) {
+					if (follower != randomKey && follower != randomEdge.getSourceId() && !followees.contains(randomKey)) {
 						notFollowees.add(randomKey);
+						i++;
 					}
 				}
 				_graph.addVertexAndNotFollowees(follower, notFollowees);
@@ -352,10 +366,10 @@ public class GraphManager {
 
 				pw.write(pageRank + "," + m.toString() + "," + cls + "\n");
 			}
-			
+
 			in.close();
 			pw.close();
-			
+
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
