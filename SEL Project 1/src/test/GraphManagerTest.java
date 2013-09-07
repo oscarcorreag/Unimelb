@@ -25,14 +25,19 @@ public class GraphManagerTest {
 		GraphManager g = new GraphManager();
 
 //		HashSet<Integer> vertices_set = g.readTestVertices("test_" + dataset + ".txt");
-		ArrayList<Edge> edges0 = g.getTestEdges("test_" + dataset + ".txt");
-		g.readTrainGraphFromFile(edges0, "train_" + dataset + "_mod.txt");
+		ArrayList<Edge> edgestest = g.getEdgesFromFile("test_" + dataset + ".txt","\t");
+		ArrayList<Edge> edgestrain = g.getEdgesFromFile("out_train.txt",",");
+		
+		edgestest.addAll(edgestrain);
+//		HashSet vertices_set = edges
+		System.out.println(edgestest.size());
+		g.readTrainGraphFromFile(edgestest, "train_" + dataset + "_mod.txt");
 
 //		ArrayList<Edge> edges = g.getTestEdges("test_" + dataset + "_from_678_1200.txt");
-//		g.writeFiles("out_train.txt", "out_test.txt", edges);
-				
-//		g.createFileWithMeasures("out_train.txt");
-//		g.createFileWithMeasures("out_test.txt");
+//		g.writeFiles("out_train.txt", "out_test.txt", edges0);
+		
+		g.createFileWithMeasures("out_train.txt");
+		g.createFileWithMeasures("out_test.txt");
 		
 		
 //		HashMap<Integer, Double> initProbs  = new HashMap<Integer, Double> ();

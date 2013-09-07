@@ -128,7 +128,7 @@ public class GraphManager {
 			// List<Integer> followersKeys = new
 			// ArrayList<Integer>(vertexAndFollowees.keySet());
 
-			Random random = new Random();
+//			Random random = new Random();
 
 			Iterator<Entry<Integer, HashSet<Integer>>> it = vertexAndFollowees.entrySet().iterator();
 
@@ -146,6 +146,10 @@ public class GraphManager {
 				// the value corresponds to OTHER VERTICES WHICH ARE NOT
 				// FOLLOWED by this random one. The number of them is determined
 				// by a constant.
+				
+				
+				//------------------ UNCOMMENT THIS TO GET NEGATIVE TRAIN EDGES
+				/*
 				HashSet<Integer> notFollowees = new HashSet<Integer>();
 
 				for (int i = 0; i < MAX ;) {
@@ -160,14 +164,18 @@ public class GraphManager {
 					}
 				}
 				_graph.addVertexAndNotFollowees(follower, notFollowees);
-
+*/
+				
+				
+				
 				// Loads the graph structure which corresponds to the INVERTED
 				// ADJACENCY LIST into a map. The key in this map corresponds to
 				// the FOLLOWEE and the values to the FOLLOWERS. However, NOT
 				// ALL FOLLOWEES are included, only those which FOLLOW someone
 				// or ARE PRESENT in the TEST set.
 				for (Integer followee : followees)
-					if (vertexAndFollowees.containsKey(followee) || test_vertices.contains(followee))
+//					if (vertexAndFollowees.containsKey(followee) || test_vertices.contains(followee))
+					if (test_vertices.contains(followee))
 						_graph.addVertexAndFollower(followee, follower);
 			}
 
@@ -185,7 +193,7 @@ public class GraphManager {
 	 *            Name of the test file given in the contest.
 	 * @return List of edges.
 	 */
-	public ArrayList<Edge> getTestEdges(String test_file) {
+	public ArrayList<Edge> getEdgesFromFile(String test_file, String delimiter) {
 
 		ArrayList<Edge> edges = new ArrayList<Edge>();
 
@@ -198,7 +206,7 @@ public class GraphManager {
 
 			while ((strLine = br.readLine()) != null) {
 
-				String[] ids = strLine.split("\t");
+				String[] ids = strLine.split(delimiter);
 
 				Integer srcId_i = Integer.valueOf(ids[0]);
 				Integer destId_i = Integer.valueOf(ids[1]);

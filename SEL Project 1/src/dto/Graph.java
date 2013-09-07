@@ -57,48 +57,49 @@ public class Graph {
 			return 0;
 	}
 
-	public Map<Integer, Double> calcPageRankOld(Integer start_node, Map<Integer, Double> initProbs) {
-
-		for (int i = NUM_ITERATIONS_PR; i > 0; i--) {
-
-			HashMap<Integer, Double> updated_probs = new HashMap<Integer, Double>();
-			updated_probs.put(start_node, 1 - PR_alpha);
-
-			Double probToPropagate;
-			Double p;
-			for (Map.Entry<Integer, Double> entry : initProbs.entrySet()) {
-				Integer node = entry.getKey();
-				Double prob = entry.getValue();
-				HashSet<Integer> neighbours = new HashSet<Integer>();
-				boolean foll1 = _vertexAndFollowees.containsKey(node);
-				boolean foll2 = _vertexAndFollowers.containsKey(node);
-				if (!(foll1 || foll2))
-					continue;
-				if (foll1)
-					neighbours.addAll(_vertexAndFollowees.get(node));
-				if (foll2)
-					neighbours.addAll(_vertexAndFollowers.get(node));
-
-				int sz = neighbours.size();
-				if (sz > 10)
-					probToPropagate = (PR_alpha * prob) / Math.log(sz);
-				else
-					probToPropagate = PR_alpha * prob;
-				for (Integer neighbour : neighbours) {
-					if (initProbs.containsKey(neighbour))
-						p = initProbs.get(neighbour);
-					else
-						p = 0.0;
-
-					updated_probs.put(neighbour, p + probToPropagate);
-				}
-			}
-
-			initProbs = updated_probs;
-			// numIterations--;
-		}
-		return initProbs;
-	}
+	// public Map<Integer, Double> calcPageRankOld(Integer start_node,
+	// Map<Integer, Double> initProbs) {
+	//
+	// for (int i = NUM_ITERATIONS_PR; i > 0; i--) {
+	//
+	// HashMap<Integer, Double> updated_probs = new HashMap<Integer, Double>();
+	// updated_probs.put(start_node, 1 - PR_alpha);
+	//
+	// Double probToPropagate;
+	// Double p;
+	// for (Map.Entry<Integer, Double> entry : initProbs.entrySet()) {
+	// Integer node = entry.getKey();
+	// Double prob = entry.getValue();
+	// HashSet<Integer> neighbours = new HashSet<Integer>();
+	// boolean foll1 = _vertexAndFollowees.containsKey(node);
+	// boolean foll2 = _vertexAndFollowers.containsKey(node);
+	// if (!(foll1 || foll2))
+	// continue;
+	// if (foll1)
+	// neighbours.addAll(_vertexAndFollowees.get(node));
+	// if (foll2)
+	// neighbours.addAll(_vertexAndFollowers.get(node));
+	//
+	// int sz = neighbours.size();
+	// if (sz > 10)
+	// probToPropagate = (PR_alpha * prob) / Math.log(sz);
+	// else
+	// probToPropagate = PR_alpha * prob;
+	// for (Integer neighbour : neighbours) {
+	// if (initProbs.containsKey(neighbour))
+	// p = initProbs.get(neighbour);
+	// else
+	// p = 0.0;
+	//
+	// updated_probs.put(neighbour, p + probToPropagate);
+	// }
+	// }
+	//
+	// initProbs = updated_probs;
+	// // numIterations--;
+	// }
+	// return initProbs;
+	// }
 
 	/**
 	 * Simulates running a personalized PageRank for one iteration.
@@ -182,7 +183,7 @@ public class Graph {
 			 * } }
 			 */
 			int sz = neighbours.size();
-			if (sz > 10)
+			if (sz > 2)
 				probToPropagate = (PR_alpha * prob) / Math.log(sz);
 			else
 				probToPropagate = PR_alpha * prob;
@@ -229,11 +230,10 @@ public class Graph {
 		if (followees_v1 != null && followees_v2 != null) {
 
 			HashSet<Integer> followees_i = new HashSet<Integer>(followees_v2);
-			// HashSet<Integer> followees_u = new
-			// HashSet<Integer>(followees_v2);
+			HashSet<Integer> followees_u = new HashSet<Integer>(followees_v2);
 
 			followees_i.retainAll(followees_v1);
-			// followees_u.addAll(followees_v1);
+			followees_u.addAll(followees_v1);
 
 			int intersectionFollowees = followees_i.size();
 
@@ -243,9 +243,8 @@ public class Graph {
 			if (intersectionFollowees > 1)
 				m.setAdamicAdarFollowees(1 / (Math.log(intersectionFollowees)));
 
-			// if (followees_u.size() > 0)
-			// m.setJaccardFollowees(intersectionFollowees /
-			// followees_u.size());
+			if (followees_u.size() > 0)
+				m.setJaccardFollowees(intersectionFollowees / followees_u.size());
 
 			if (followees_v1.size() > 0 && followees_v2.size() > 0)
 				m.setCosineFollowees(intersectionFollowees / Math.sqrt(followees_v1.size() * followees_v2.size()));
@@ -254,11 +253,10 @@ public class Graph {
 		if (followers_v1 != null && followers_v2 != null) {
 
 			HashSet<Integer> followers_i = new HashSet<Integer>(followers_v2);
-			// HashSet<Integer> followers_u = new
-			// HashSet<Integer>(followers_v2);
+			HashSet<Integer> followers_u = new HashSet<Integer>(followers_v2);
 
 			followers_i.retainAll(followers_v1);
-			// followers_u.addAll(followers_v1);
+			followers_u.addAll(followers_v1);
 
 			int intersectionFollowers = followers_i.size();
 
@@ -268,9 +266,8 @@ public class Graph {
 			if (intersectionFollowers > 1)
 				m.setAdamicAdarFollowers(1 / (Math.log(intersectionFollowers)));
 
-			// if (followers_u.size() > 0)
-			// m.setJaccardFollowers(intersectionFollowers /
-			// followers_u.size());
+			if (followers_u.size() > 0)
+				m.setJaccardFollowers(intersectionFollowers / followers_u.size());
 
 			if (followers_v1.size() > 0 && followers_v2.size() > 0)
 				m.setCosineFollowers(intersectionFollowers / Math.sqrt(followers_v1.size() * followers_v2.size()));
@@ -278,14 +275,28 @@ public class Graph {
 
 		// if (pr_probs.containsKey(v2))
 		// m.setPageRank(pr_probs.get(v2));
-		
-		
-		
-		
-		
-		
-		
-		
+
+		if (followees_v1 != null && followers_v2 != null) {
+
+			HashSet<Integer> i = new HashSet<Integer>(followers_v2);
+			HashSet<Integer> u = new HashSet<Integer>(followers_v2);
+
+			i.retainAll(followees_v1);
+			u.addAll(followees_v1);
+
+			int intersection = i.size();
+
+			m.setIntersectionFolloweesFollowers(i.size());
+
+			if (intersection > 1)
+				m.setAdamicAdarFolloweesFollowers(1 / (Math.log(intersection)));
+
+			if (u.size() > 0)
+				m.setJaccardFolloweesFollowers(intersection / u.size());
+
+			if (followees_v1.size() > 0 && followers_v2.size() > 0)
+				m.setCosineFolloweesFollowers(intersection / Math.sqrt(followees_v1.size() * followers_v2.size()));
+		}
 
 		return m;
 	}
